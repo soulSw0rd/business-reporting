@@ -3,7 +3,7 @@
 
 # Framework Web
 # Flask==3.0.0
-Flask-CORS==4.0.0
+Flask-CORS==6.0.0
 
 # Base de données et ORM
 # SQLAlchemy==2.0.23
@@ -13,7 +13,7 @@ Flask-CORS==4.0.0
 
 # APIs et requêtes HTTP
 fastapi==0.111.0
-requests==2.31.0
+requests==2.32.4
 # Utilisation de versions spécifiques pour éviter les problèmes de compilation sur Windows
 # aiohttp==3.8.6 # Commenté temporairement
 websockets==12.0
@@ -61,10 +61,10 @@ selenium==4.22.0
 # Développement et tests
 pytest==7.4.3
 pytest-asyncio==0.21.1
-black==23.11.0
+black==24.3.0
 flake8==6.1.0
 
 # Production
-gunicorn==21.2.0
+gunicorn==23.0.0
 supervisor==4.2.5
 uvicorn==0.29.0 
