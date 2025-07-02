@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-07-01T13:25:10.826700",
+  "trader_analyses": [],
+  "top_performers": [],
+  "market_consensus": {
+    "error": "Pas assez de traders fiables pour consensus"
+  },
+  "prediction_signals": [],
+  "copy_opportunities": [],
+  "summary": {
+    "total_traders_analyzed": 0,
+    "high_confidence_signals": 0,
+    "dominant_signal": "HOLD",
+    "market_sentiment": "NEUTRAL",
+    "recommendation": "WAIT - Données insuffisantes"
+  }
+}

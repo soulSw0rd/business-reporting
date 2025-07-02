@@ -1,118 +1,151 @@
 # -*- coding: utf-8 -*-
-
 """
 main.py
-
-Point d'entrée principal pour l'API de prédiction de trading CryptoTracker.
-Initialise l'application FastAPI, configure les routes et les services.
+Point d'entrée principal de l'API Crypto Prediction.
 """
 
 # -----------------------------------------------------------------------------
 # Imports
 # -----------------------------------------------------------------------------
 
-from fastapi import FastAPI, HTTPException
-from typing import Dict
+import os
+import glob
+import json
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from typing import Dict, Any
 
-# Ajout de l'import pour notre nouveau service de scraping
-from ..core.scrapers import scrape_top_traders
+
+# --- Imports des modules principaux du projet ---
+# Utilisation de chemins relatifs pour la robustesse
+from ..core.enhanced_scraper import EnhancedHyperdashScraper
+from ..core.prediction_engine import CryptoPredictionEngine
+
 
 # -----------------------------------------------------------------------------
 # Initialisation de l'Application
 # -----------------------------------------------------------------------------
 
 app = FastAPI(
-    title="CryptoTracker API",
-    description="API pour fournir des prédictions de trading basées sur l'analyse de wallets.",
-    version="1.0.0",
+    title="Crypto Prediction API",
+    description="API pour scraper les données de traders et générer des prédictions de marché.",
+    version="2.0.0",
 )
+
+# -----------------------------------------------------------------------------
+# Fonctions Utilitaires
+# -----------------------------------------------------------------------------
+
+def get_latest_data_file(pattern: str) -> str:
+    """Trouve le fichier le plus récent correspondant à un pattern."""
+    data_dir = os.path.join('DATA', 'processed')
+    list_of_files = glob.glob(os.path.join(data_dir, pattern))
+    if not list_of_files:
+        return None
+    return max(list_of_files, key=os.path.getctime)
+
+def run_scraping_task() -> Dict[str, Any]:
+    """Tâche de scraping complète."""
+    scraper = EnhancedHyperdashScraper()
+    traders_data = scraper.scrape_enhanced_top_traders(max_traders=50)
+    if not traders_data:
+        raise HTTPException(status_code=500, detail="Le scraping n'a retourné aucune donnée.")
+    
+    filepath = scraper.save_enhanced_data(traders_data)
+    return {"message": "Scraping enrichi réussi.", "file_path": filepath, "traders_found": len(traders_data)}
+
+def run_analysis_task(file_path: str) -> Dict[str, Any]:
+    """Tâche d'analyse complète sur un fichier de données."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        traders = data.get('traders')
+        if not traders:
+            raise ValueError("Le fichier ne contient pas de données de traders.")
+            
+        engine = CryptoPredictionEngine()
+        analysis_result = engine.analyze_traders_data(traders)
+        
+        # Sauvegarde de l'analyse
+        analysis_dir = os.path.join('DATA', 'processed')
+        timestamp = os.path.basename(file_path).replace('enhanced_traders_', '').replace('.json', '')
+        analysis_filepath = os.path.join(analysis_dir, f"analysis_{timestamp}.json")
+        
+        # Utilise le 'default=str' pour gérer les types non sérialisables comme Enum et datetime
+        with open(analysis_filepath, 'w', encoding='utf-8') as f:
+            json.dump(analysis_result, f, indent=2, ensure_ascii=False, default=str)
+            
+        analysis_result['analysis_saved_to'] = analysis_filepath
+        return analysis_result
+
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Fichier de données non trouvé : {file_path}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur durant l'analyse : {str(e)}")
+
 
 # -----------------------------------------------------------------------------
 # Routes de l'API
 # -----------------------------------------------------------------------------
 
-@app.get("/", tags=["Monitoring"])
+@app.get("/", tags=["General"])
 def get_api_status() -> Dict[str, str]:
-    """
-    OBJECTIF : Vérifier l'état de santé de l'API.
-    
-    PARAMÈTRES :
-    - Aucun
-    
-    RETOURNE :
-    - dict : Un dictionnaire indiquant le statut de l'API.
-        {"status": "CryptoTracker API is running"}
-    
-    LOGIQUE :
-    1. Retourne une réponse JSON simple pour confirmer que le service est en ligne.
-    """
-    # ÉTAPE 1: Définir la réponse de statut
-    response = {"status": "CryptoTracker API is running"}
-    
-    # ÉTAPE 2: Retourner la réponse
-    return response
+    """Vérifie l'état de santé de l'API."""
+    return {"status": "Crypto Prediction API is running", "version": app.version}
 
-@app.get("/scrape/{wallet_address}", tags=["Scraping"])
-def scrape_wallet_data(wallet_address: str) -> Dict[str, str]:
+@app.post("/scrape/enhanced", tags=["Core"])
+def scrape_enhanced_traders_data(background_tasks: BackgroundTasks) -> Dict[str, str]:
     """
-    OBJECTIF : Lancer le scraping des données pour une adresse de wallet spécifique.
-    
-    PARAMÈTRES :
-    - wallet_address (str) : L'adresse du wallet à analyser (ex: 0x123...abc).
-    
-    RETOURNE :
-    - dict : Un dictionnaire confirmant le lancement du scraping.
-    
-    LOGIQUE :
-    1. Récupère l'adresse du wallet depuis l'URL.
-    2. (Implémentation future) Lance le service de scraping pour cette adresse.
-    3. Retourne une confirmation immédiate.
+    Lance le scraping enrichi des top traders en tâche de fond.
+    Retourne une confirmation immédiate.
     """
-    # ÉTAPE 1: Valider l'adresse (logique de base)
-    if not wallet_address.startswith("0x"):
-        return {"error": "Invalid wallet address format."}
+    background_tasks.add_task(run_scraping_task)
+    return {"message": "Le scraping enrichi a été lancé en tâche de fond."}
 
-    # ÉTAPE 2: Simuler le lancement du scraping
-    # La logique de scraping réelle sera dans un service dédié.
-    print(f"Lancement du scraping pour le wallet : {wallet_address}")
-    
-    # ÉTAPE 3: Retourner la confirmation
-    return {"status": "scraping_initiated", "wallet": wallet_address}
 
-@app.post("/scrape/top-traders", tags=["Scraping"])
-def trigger_scrape_top_traders() -> Dict[str, str]:
+@app.post("/analyze/latest", tags=["Core"])
+def analyze_latest_scraped_data() -> Dict[str, Any]:
     """
-    OBJECTIF : Déclenche le scraping de la page des meilleurs traders
-               et sauvegarde les données.
-    
-    PARAMÈTRES :
-    - Aucun
-    
-    RETOURNE :
-    - dict : Un dictionnaire confirmant le succès et l'emplacement des données.
-    
-    LOGIQUE :
-    1. Appelle la fonction de scraping dédiée `scrape_top_traders`.
-    2. Gère les cas où le scraping échoue.
-    3. Retourne une réponse JSON avec le statut et le chemin du fichier.
+    Analyse le dernier fichier de données scrapé disponible.
     """
-    # ÉTAPE 1: Lancer le scraping
-    print("Requête reçue pour scraper les meilleurs traders.")
-    filepath = scrape_top_traders()
+    latest_file = get_latest_data_file("enhanced_traders_*.json")
+    if not latest_file:
+        raise HTTPException(status_code=404, detail="Aucun fichier de données 'enhanced_traders' trouvé.")
     
-    # ÉTAPE 2: Gérer le résultat
-    if filepath is None:
-        raise HTTPException(
-            status_code=500,
-            detail="Le scraping a échoué. Consulter les logs du serveur pour plus de détails."
-        )
-        
-    # ÉTAPE 3: Confirmer le succès
-    return {
-        "status": "success",
-        "message": "Les données des meilleurs traders ont été scrappées.",
-        "data_file": filepath
-    }
+    return run_analysis_task(latest_file)
+
+
+@app.post("/scrape_and_analyze", tags=["Core"])
+def scrape_and_analyze() -> Dict[str, Any]:
+    """
+    Exécute le cycle complet : scraping puis analyse.
+    Cette opération est synchrone et peut prendre du temps.
+    """
+    scraping_result = run_scraping_task()
+    file_path = scraping_result.get("file_path")
+    
+    if not file_path:
+        raise HTTPException(status_code=500, detail="Échec de l'étape de scraping, l'analyse ne peut continuer.")
+
+    return run_analysis_task(file_path)
+
+@app.get("/data/latest", tags=["Data"])
+def get_latest_data() -> Dict[str, Any]:
+    """Récupère le contenu du dernier fichier de données scrapées."""
+    latest_file = get_latest_data_file("enhanced_traders_*.json")
+    if not latest_file:
+        raise HTTPException(status_code=404, detail="Aucun fichier de données trouvé.")
+    with open(latest_file, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+@app.get("/analysis/latest", tags=["Data"])
+def get_latest_analysis() -> Dict[str, Any]:
+    """Récupère le contenu du dernier fichier d'analyse."""
+    latest_file = get_latest_data_file("analysis_*.json")
+    if not latest_file:
+        raise HTTPException(status_code=404, detail="Aucun fichier d'analyse trouvé.")
+    with open(latest_file, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 # -----------------------------------------------------------------------------
 # Lancement de l'application (pour le développement local)
@@ -121,5 +154,6 @@ def trigger_scrape_top_traders() -> Dict[str, str]:
 if __name__ == "__main__":
     import uvicorn
     
-    print("Démarrage du serveur FastAPI pour le développement...")
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    print("🚀 Démarrage du serveur FastAPI...")
+    print("🔗 Accès à la documentation de l'API: http://127.0.0.1:8000/docs")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
