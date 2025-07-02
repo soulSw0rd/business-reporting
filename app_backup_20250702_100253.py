@@ -1,22 +1,21 @@
-#!/usr/bin/env python3
-"""
-Dashboard Crypto Business Intelligence - Version simplifiée
-Utilise uniquement les données du dossier /data
-"""
-
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import json
-from pathlib import Path
-import requests
+from plotly.subplots import make_subplots
+import yfinance as yf
 from datetime import datetime, timedelta
+import seaborn as sns
+import matplotlib.pyplot as plt
+import requests
+import json
+import os
+from pathlib import Path
 
 # Configuration de la page
 st.set_page_config(
-    page_title="Crypto Dashboard",
+    page_title="CryptoTrader Dashboard - Business Intelligence",
     page_icon="₿",
     layout="wide",
     initial_sidebar_state="expanded"
