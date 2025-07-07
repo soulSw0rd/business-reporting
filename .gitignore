@@ -137,6 +137,7 @@ Thumbs.db
 # Logs
 logs/
 *.log
+npm-debug.log*
 
 # Docker
 .dockerignore
@@ -175,4 +176,9 @@ dist/
 .coverage
 htmlcov/
 .pytest_cache/
-.tox/ 
+.tox/
+
+# Fichiers de configuration spécifiques à l'environnement
+.env
+.env.*
+!/.env.example 
