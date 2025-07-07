@@ -1,4 +1,4 @@
-# HyperDash Top-Traders Scraper
+# Crypto track Top-Traders Scraper
 
 Ce projet contient une API simple conçue pour scraper les données des "Top Traders" depuis le site [hyperdash.info](https://hyperdash.info).
 
