@@ -12,10 +12,16 @@ Initialise l'application FastAPI, configure les routes et les services.
 # -----------------------------------------------------------------------------
 
 from fastapi import FastAPI, HTTPException
-from typing import Dict
+from typing import Dict, List, Any
 
 # Ajout de l'import pour notre nouveau service de scraping
 from ..core.scrapers import scrape_top_traders
+# --- DEBUT DE LA FUSION : IMPORTS DES NOUVEAUX SCRAPERS ---
+from ..core.coingecko import scrape_coingecko_metrics
+from ..core.fear_and_greed import scrape_fear_and_greed_index
+from ..core.funding_rates import FundingRatesScraper
+from ..core.etherscan import scrape_top_eth_accounts
+# --- FIN DE LA FUSION ---
 
 # -----------------------------------------------------------------------------
 # Initialisation de l'Application
@@ -113,6 +119,62 @@ def trigger_scrape_top_traders() -> Dict[str, str]:
         "message": "Les données des meilleurs traders ont été scrappées.",
         "data_file": filepath
     }
+
+# -----------------------------------------------------------------------------
+# Routes de l'API - Données de Marché (Fusion)
+# -----------------------------------------------------------------------------
+
+@app.get("/market-data/coingecko-btc", tags=["Market Data"])
+def get_coingecko_data():
+    """Récupère les données de marché pour le BTC depuis CoinGecko."""
+    data = scrape_coingecko_metrics()
+    if data is None:
+        raise HTTPException(status_code=500, detail="Échec du scraping de CoinGecko.")
+    return data
+
+@app.get("/market-data/fear-and-greed", tags=["Market Data"])
+def get_fng_data():
+    """Récupère l'indice Fear & Greed."""
+    data = scrape_fear_and_greed_index()
+    if data is None:
+        raise HTTPException(status_code=500, detail="Échec du scraping de l'indice Fear & Greed.")
+    return data
+
+@app.get("/market-data/funding-rates", tags=["Market Data"])
+def get_funding_rates_data():
+    """Récupère les taux de financement de Binance."""
+    scraper = FundingRatesScraper()
+    data = scraper.scrape()
+    if data is None:
+        raise HTTPException(status_code=500, detail="Échec du scraping des taux de financement.")
+    return data
+    
+@app.get("/market-data/top-eth-accounts", tags=["Market Data"])
+def get_top_eth_accounts_data():
+    """Récupère les comptes ETH les plus riches depuis Etherscan."""
+    data = scrape_top_eth_accounts()
+    if data is None:
+        raise HTTPException(status_code=500, detail="Échec du scraping d'Etherscan.")
+    return data
+
+@app.get("/market-data/all", tags=["Market Data"])
+def get_all_market_data() -> Dict[str, Any]:
+    """
+    OBJECTIF : Agréger les données de toutes les sources de marché.
+    """
+    funding_scraper = FundingRatesScraper()
+    
+    results = {
+        "coingecko_btc": scrape_coingecko_metrics(),
+        "fear_and_greed_index": scrape_fear_and_greed_index(),
+        "funding_rates": funding_scraper.scrape(),
+        "top_eth_accounts": scrape_top_eth_accounts()
+    }
+
+    # Filtrer les résultats qui ont échoué (valeur None)
+    successful_results = {key: value for key, value in results.items() if value is not None}
+    
+    return successful_results
 
 # -----------------------------------------------------------------------------
 # Lancement de l'application (pour le développement local)

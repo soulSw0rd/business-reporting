@@ -187,7 +187,7 @@ Modifier la section CSS dans `app.py` pour personnaliser l'apparence.
 ## 🚨 Résolution de problèmes
 
 ### API non accessible
-```bash
+    ```bash
 # Vérifier si l'API est démarrée
 curl http://localhost:8000/health
 
@@ -201,7 +201,7 @@ uvicorn SRC.api.main:app --host 0.0.0.0 --port 8000
 - Utiliser les données de démonstration
 
 ### Erreurs de packages
-```bash
+    ```bash
 # Réinstaller les dépendances
 pip install -r requirements.txt --force-reinstall
 ```

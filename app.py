@@ -63,19 +63,55 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# --- DEBUT DE LA FUSION : NOUVELLE FONCTION API ---
+@st.cache_data(ttl=300) # Cache pendant 5 minutes
+def get_all_market_data_from_api() -> dict:
+    """
+    Récupère toutes les données de marché agrégées depuis l'API.
+    """
+    api_url = "http://127.0.0.1:8000/market-data/all"
+    try:
+        response = requests.get(api_url, timeout=15)
+        if response.status_code == 200:
+            print("Données de marché API récupérées avec succès.")
+            return response.json()
+        else:
+            st.error(f"Erreur API : Impossible de récupérer les données de marché (Code: {response.status_code})")
+            return {}
+    except requests.exceptions.RequestException as e:
+        st.warning(f"Impossible de se connecter à l'API de données de marché à {api_url}. Certaines données pourraient manquer.")
+        return {}
+# --- FIN DE LA FUSION ---
+
 # Fonctions pour accéder aux données
 @st.cache_data(ttl=300)  # Cache pendant 5 minutes
 def get_scraped_data():
-    """Récupère les données scrapées depuis les fichiers JSON locaux"""
+    """
+    Récupère les données scrapées depuis les fichiers JSON locaux.
+    Pour les traders, charge le fichier le plus récent.
+    """
     data_path = Path("data/processed")
     scraped_data = {}
     
     if data_path.exists():
-        for json_file in data_path.glob("*.json"):
+        # Traitement spécifique pour les top traders
+        trader_files = sorted(data_path.glob("top_traders_*.json"), reverse=True)
+        if trader_files:
+            latest_trader_file = trader_files[0]
+            try:
+                with open(latest_trader_file, 'r', encoding='utf-8') as f:
+                    # Utiliser une clé cohérente pour l'accès
+                    scraped_data['top_traders'] = json.load(f)
+                    print(f"Chargé le fichier de traders le plus récent : {latest_trader_file.name}")
+            except Exception as e:
+                st.error(f"Erreur lors du chargement de {latest_trader_file}: {e}")
+
+        # Traitement des autres fichiers si nécessaire (exemple)
+        other_files = [f for f in data_path.glob("*.json") if not f.name.startswith("top_traders_")]
+        for json_file in other_files:
             try:
                 with open(json_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    scraped_data[json_file.stem] = data
+                    scraped_data[json_file.stem] = json.load(f)
             except Exception as e:
                 st.error(f"Erreur lors du chargement de {json_file}: {e}")
     
@@ -173,7 +209,7 @@ def main():
     st.sidebar.title("🚀 Navigation")
     page = st.sidebar.selectbox(
         "Choisir une page",
-        ["🏠 Vue d'ensemble", "👑 Top Traders", "📊 Analyse Crypto", " Sentiment", "⚙️ Données"]
+        ["🏠 Vue d'ensemble", "👑 Top Traders", "📊 Analyse Crypto", "📈 Sentiment", "⚙️ Données"]
     )
     
     # Vérification des données disponibles
@@ -186,47 +222,42 @@ def main():
         show_top_traders(scraped_data)
     elif page == "📊 Analyse Crypto":
         show_crypto_analysis(scraped_data)
-    elif page == "� Sentiment":
+    elif page == "📈 Sentiment":
         show_sentiment_analysis(scraped_data)
     elif page == "⚙️ Données":
         show_data_status(scraped_data)
 
 def show_overview(scraped_data):
-    """Affiche la page de vue d'ensemble basée sur les données réelles"""
+    """Affiche la page de vue d'ensemble basée sur les données réelles et l'API."""
     st.header("🏠 Vue d'ensemble du marché crypto")
     
-    # Métriques principales basées sur les données réelles
+    # --- DEBUT DE LA FUSION : APPEL A LA NOUVELLE FONCTION API ---
+    market_data = get_all_market_data_from_api()
+    # --- FIN DE LA FUSION ---
+
+    # Métriques principales basées sur les données de l'API
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        traders_count = 0
-        if scraped_data and 'top_traders_extended' in scraped_data:
-            traders_data = scraped_data['top_traders_extended']
-            traders_count = len(traders_data) if isinstance(traders_data, list) else 0
-        st.metric("Total Traders", traders_count)
-    
+        btc_price = market_data.get("coingecko_btc", {}).get("price", "N/A")
+        if isinstance(btc_price, (int, float)):
+            btc_price = f"${btc_price:,.2f}"
+        st.metric("Prix du Bitcoin (BTC)", btc_price)
+
     with col2:
-        crypto_count = 0
-        if scraped_data and 'market_data_extended' in scraped_data:
-            market_data = scraped_data['market_data_extended']
-            if isinstance(market_data, dict) and 'cryptocurrencies' in market_data:
-                crypto_count = len(market_data['cryptocurrencies'])
-        st.metric("Cryptomonnaies", crypto_count)
-    
+        fng_value = market_data.get("fear_and_greed_index", {}).get("value", "N/A")
+        fng_text = market_data.get("fear_and_greed_index", {}).get("value_classification", "")
+        st.metric("Fear & Greed Index", fng_value, fng_text)
+
     with col3:
-        historical_points = 0
-        if scraped_data and 'historical_data' in scraped_data:
-            historical_data = scraped_data['historical_data']
-            historical_points = len(historical_data) if isinstance(historical_data, list) else 0
-        st.metric("Points Historiques", historical_points)
-    
+        funding_rate = market_data.get("funding_rates", {}).get("BTCUSDT", {}).get("last_funding_rate", "N/A")
+        if isinstance(funding_rate, float):
+            funding_rate = f"{funding_rate:.4%}"
+        st.metric("BTC Funding Rate", funding_rate)
+        
     with col4:
-        signals_count = 0
-        if scraped_data and 'sentiment_data' in scraped_data:
-            sentiment_data = scraped_data['sentiment_data']
-            if isinstance(sentiment_data, dict) and 'signals' in sentiment_data:
-                signals_count = len(sentiment_data['signals'])
-        st.metric("Signaux Sentiment", signals_count)
+        eth_accounts_count = len(market_data.get("top_eth_accounts", []))
+        st.metric("Top ETH Accounts Scraped", eth_accounts_count)
     
     st.markdown("---")
     
@@ -234,29 +265,35 @@ def show_overview(scraped_data):
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("� Top 10 Traders par PnL")
-        if scraped_data and 'top_traders_extended' in scraped_data:
-            traders_data = scraped_data['top_traders_extended']
+        st.subheader("📊 Top 10 Traders par PnL")
+        if scraped_data and 'top_traders' in scraped_data:
+            traders_data = scraped_data['top_traders']
             if isinstance(traders_data, list) and traders_data:
+                # Convertir en DataFrame pour l'analyse
                 df = pd.DataFrame(traders_data)
-                if 'total_pnl' in df.columns and 'username' in df.columns:
-                    top_traders = df.nlargest(10, 'total_pnl')
-                    fig = px.bar(
-                        top_traders,
-                        x='username',
-                        y='total_pnl',
-                        title="Top 10 Traders",
-                        color='total_pnl',
-                        color_continuous_scale='Viridis'
-                    )
-                    fig.update_layout(height=400)
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.warning("Colonnes manquantes dans les données traders")
+                
+                # Nettoyage des données PnL (supprimer $, K, M et convertir en nombre)
+                df['pnl_numeric'] = df['pnl_7d'].replace({'\$': '', 'K': 'e3', 'M': 'e6'}, regex=True).astype(float)
+                
+                top_traders = df.nlargest(10, 'pnl_numeric')
+                
+                # Utiliser l'adresse si le nom d'utilisateur n'existe pas
+                top_traders['display_name'] = top_traders['address'].str.slice(0, 10) + '...'
+                
+                fig = px.bar(
+                    top_traders,
+                    x='display_name',
+                    y='pnl_numeric',
+                    title="Top 10 Traders (PnL 7 jours)",
+                    color='pnl_numeric',
+                    color_continuous_scale='Viridis',
+                    labels={'display_name': 'Trader', 'pnl_numeric': 'PnL (USD)'}
+                )
+                st.plotly_chart(fig, use_container_width=True)
             else:
-                st.warning("Aucune donnée trader disponible")
+                st.info("Pas de données de traders disponibles. Lancez un scraping depuis l'API.")
         else:
-            st.warning("Fichier top_traders_extended.json introuvable")
+            st.info("Pas de données de traders disponibles. Lancez un scraping depuis l'API.")
     
     with col2:
         st.subheader("📊 Prix des Cryptomonnaies")
