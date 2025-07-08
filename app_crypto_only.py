@@ -13,6 +13,8 @@ import json
 from pathlib import Path
 import requests
 from datetime import datetime, timedelta
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # Configuration de la page
 st.set_page_config(
@@ -39,6 +41,26 @@ def get_scraped_data():
                 st.error(f"Erreur lors du chargement de {json_file}: {e}")
     
     return scraped_data
+
+def clean_dataframe_for_display(df):
+    """Nettoie un DataFrame pour éviter les erreurs de sérialisation PyArrow"""
+    if df is None or df.empty:
+        return df
+    
+    df_clean = df.copy()
+    
+    # Convertir les colonnes problématiques
+    for col in df_clean.columns:
+        if col in ['max_supply', 'total_supply', 'circulating_supply']:
+            # Convertir "N/A" en None puis en float
+            df_clean[col] = df_clean[col].apply(lambda x: None if x == "N/A" else x)
+            df_clean[col] = pd.to_numeric(df_clean[col], errors='coerce')
+        
+        # Convertir les autres colonnes objets en string pour éviter les erreurs
+        elif df_clean[col].dtype == 'object':
+            df_clean[col] = df_clean[col].astype(str)
+    
+    return df_clean
 
 def main():
     st.title("₿ CryptoTrader Dashboard - Business Intelligence")
@@ -267,8 +289,11 @@ def show_top_traders(scraped_data):
     # Sélectionner les colonnes importantes
     cols_to_show = ['username', 'total_pnl', 'roi_percentage', 'win_rate', 'total_trades']
     
+    # Nettoyer les données pour éviter les erreurs de sérialisation
+    display_df_clean = clean_dataframe_for_display(display_df)
+    
     st.dataframe(
-        display_df[cols_to_show].head(20),
+        display_df_clean[cols_to_show].head(20),
         use_container_width=True
     )
 
@@ -292,6 +317,9 @@ def show_crypto_analysis(scraped_data):
         return
     
     df = pd.DataFrame(cryptos)
+    
+    # Nettoyer les données pour éviter les erreurs de sérialisation
+    df = clean_dataframe_for_display(df)
     
     # Sélection de crypto
     col1, col2 = st.columns(2)
@@ -402,11 +430,12 @@ def show_crypto_analysis(scraped_data):
     
     # Tableau détaillé
     st.subheader("📋 Données détaillées")
-    st.dataframe(df, use_container_width=True)
+    df_display = clean_dataframe_for_display(df)
+    st.dataframe(df_display, use_container_width=True)
 
 def show_sentiment_analysis(scraped_data):
     """Affiche l'analyse de sentiment basée sur les données réelles"""
-    st.header("📈 Analyse de Sentiment")
+    st.header("📈 Analyse de Sentiment du Marché Crypto")
     
     # Vérifier les données de sentiment
     if not scraped_data or 'sentiment_data' not in scraped_data:
@@ -418,91 +447,320 @@ def show_sentiment_analysis(scraped_data):
         st.error("❌ Structure incorrecte dans sentiment_data.json")
         return
     
-    # Sentiment global
+    # === SECTION 1: SENTIMENT GLOBAL ===
+    st.subheader("🌍 Vue d'ensemble du marché")
+    
     overall_sentiment = sentiment_data.get('overall_sentiment', {})
     if overall_sentiment:
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         
         with col1:
             score = overall_sentiment.get('score', 0)
-            st.metric("📊 Score Global", f"{score:.3f}")
+            delta_color = "normal" if score >= 0 else "inverse"
+            st.metric("📊 Score Global", f"{score:.3f}", delta=f"{score:.3f}", delta_color=delta_color)
         
         with col2:
             label = overall_sentiment.get('label', 'N/A')
-            st.metric("🎯 Sentiment", label)
+            emoji = "🟢" if label == "Bullish" else "🔴" if label == "Bearish" else "🟡"
+            st.metric("🎯 Sentiment", f"{emoji} {label}")
         
         with col3:
             confidence = overall_sentiment.get('confidence', 0)
             st.metric("🔍 Confiance", f"{confidence:.1%}")
+        
+        with col4:
+            timestamp = sentiment_data.get('timestamp', 'N/A')
+            if timestamp != 'N/A':
+                dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                st.metric("🕒 Dernière MAJ", dt.strftime("%H:%M"))
     
     st.markdown("---")
     
-    # Signaux par crypto
+    # === SECTION 2: ANALYSE PAR CRYPTO ===
     signals = sentiment_data.get('signals', [])
-    if signals:
-        st.subheader("📡 Signaux par Cryptomonnaie")
-        
-        df_signals = pd.DataFrame(signals)
-        
-        if 'symbol' in df_signals.columns:
-            # Graphique des scores de sentiment
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                if 'sentiment_score' in df_signals.columns:
-                    fig = px.bar(
-                        df_signals,
-                        x='symbol',
-                        y='sentiment_score',
-                        color='sentiment_score',
-                        title="Score de sentiment par crypto",
-                        color_continuous_scale='RdYlGn',
-                        color_continuous_midpoint=0
-                    )
-                    fig.update_layout(height=400)
-                    st.plotly_chart(fig, use_container_width=True)
-            
-            with col2:
-                if 'social_volume' in df_signals.columns:
-                    fig = px.bar(
-                        df_signals,
-                        x='symbol',
-                        y='social_volume',
-                        title="Volume social par crypto",
-                        color='social_volume',
-                        color_continuous_scale='Blues'
-                    )
-                    fig.update_layout(height=400)
-                    st.plotly_chart(fig, use_container_width=True)
-            
-            # Tableau des signaux détaillés
-            st.subheader("📋 Signaux détaillés")
-            
-            # Restructurer les signaux pour l'affichage
-            detailed_signals = []
-            for signal in signals:
-                if 'signals' in signal:
-                    for sig in signal['signals']:
-                        detailed_signals.append({
-                            'Crypto': signal.get('symbol', 'N/A'),
-                            'Type': sig.get('type', 'N/A'),
-                            'Direction': sig.get('direction', 'N/A'),
-                            'Force': sig.get('strength', 'N/A'),
-                            'Confiance': f"{sig.get('confidence', 0):.1%}",
-                            'Timestamp': sig.get('timestamp', 'N/A')
-                        })
-            
-            if detailed_signals:
-                df_detailed = pd.DataFrame(detailed_signals)
-                st.dataframe(df_detailed, use_container_width=True)
-            
-            # Affichage brut des données
-            st.subheader("📊 Données brutes")
-            st.dataframe(df_signals, use_container_width=True)
-        else:
-            st.warning("Colonne 'symbol' manquante dans les signaux")
-    else:
+    if not signals:
         st.warning("Aucun signal trouvé")
+        return
+    
+    df_signals = pd.DataFrame(signals)
+    if 'symbol' not in df_signals.columns:
+        st.warning("Colonne 'symbol' manquante dans les signaux")
+        return
+    
+    st.subheader("💰 Analyse par Cryptomonnaie")
+    
+    # Filtres interactifs
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        selected_cryptos = st.multiselect(
+            "🔍 Filtrer par crypto:",
+            options=df_signals['symbol'].unique(),
+            default=df_signals['symbol'].unique()[:5]  # Afficher les 5 premières par défaut
+        )
+    
+    with col2:
+        sort_by = st.selectbox(
+            "📊 Trier par:",
+            options=['sentiment_score', 'social_volume', 'news_sentiment'],
+            index=0
+        )
+    
+    with col3:
+        ascending = st.checkbox("📈 Ordre croissant", value=False)
+    
+    # Filtrer les données
+    df_filtered = df_signals[df_signals['symbol'].isin(selected_cryptos)]
+    if sort_by in df_filtered.columns:
+        df_filtered = df_filtered.sort_values(sort_by, ascending=ascending)
+    
+    # === GRAPHIQUES PRINCIPAUX ===
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if 'sentiment_score' in df_filtered.columns:
+            # Graphique en barres avec couleurs conditionnelles
+            colors = ['#00CC96' if x >= 0 else '#EF553B' for x in df_filtered['sentiment_score']]
+            
+            fig = go.Figure(data=[
+                go.Bar(
+                    x=df_filtered['symbol'],
+                    y=df_filtered['sentiment_score'],
+                    marker_color=colors,
+                    text=df_filtered['sentiment_score'].round(3),
+                    textposition='auto',
+                )
+            ])
+            fig.update_layout(
+                title="🎯 Score de Sentiment par Crypto",
+                xaxis_title="Cryptomonnaie",
+                yaxis_title="Score (-1 à +1)",
+                height=400,
+                showlegend=False
+            )
+            fig.add_hline(y=0, line_dash="dash", line_color="gray", annotation_text="Neutralité")
+            st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        if 'social_volume' in df_filtered.columns:
+            fig = px.bar(
+                df_filtered,
+                x='symbol',
+                y='social_volume',
+                title="📢 Volume Social par Crypto",
+                color='social_volume',
+                color_continuous_scale='Viridis',
+                text='social_volume'
+            )
+            fig.update_traces(texttemplate='%{text}', textposition='outside')
+            fig.update_layout(height=400)
+            st.plotly_chart(fig, use_container_width=True)
+    
+    # === GRAPHIQUES SUPPLÉMENTAIRES ===
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if 'news_sentiment' in df_filtered.columns:
+            fig = px.scatter(
+                df_filtered,
+                x='sentiment_score',
+                y='news_sentiment',
+                size='social_volume',
+                color='symbol',
+                title="📰 Sentiment News vs Sentiment Global",
+                labels={
+                    'sentiment_score': 'Sentiment Global',
+                    'news_sentiment': 'Sentiment News'
+                }
+            )
+            fig.add_hline(y=0, line_dash="dash", line_color="gray")
+            fig.add_vline(x=0, line_dash="dash", line_color="gray")
+            fig.update_layout(height=400)
+            st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        # Graphique radar pour comparaison multi-dimensionnelle
+        if len(df_filtered) > 0 and 'sentiment_score' in df_filtered.columns:
+            # Sélectionner les top 5 cryptos pour le radar
+            top_cryptos = df_filtered.head(5)
+            
+            fig = go.Figure()
+            
+            for _, crypto in top_cryptos.iterrows():
+                values = [
+                    (crypto.get('sentiment_score', 0) + 1) * 50,  # Normaliser de 0 à 100
+                    crypto.get('social_volume', 0) / 10,  # Ajuster l'échelle
+                    (crypto.get('news_sentiment', 0) + 1) * 50,  # Normaliser de 0 à 100
+                ]
+                
+                fig.add_trace(go.Scatterpolar(
+                    r=values + [values[0]],  # Fermer le polygone
+                    theta=['Sentiment', 'Volume Social', 'News', 'Sentiment'],
+                    fill='toself',
+                    name=crypto['symbol'],
+                    opacity=0.6
+                ))
+            
+            fig.update_layout(
+                polar=dict(
+                    radialaxis=dict(
+                        visible=True,
+                        range=[0, 100]
+                    )),
+                title="🎯 Comparaison Multi-dimensionnelle",
+                height=400
+            )
+            st.plotly_chart(fig, use_container_width=True)
+    
+    # === TABLEAU DE SYNTHESE ===
+    st.subheader("📊 Tableau de Synthèse")
+    
+    # Créer un tableau enrichi
+    display_df = df_filtered.copy()
+    
+    # Ajouter des colonnes calculées
+    if 'sentiment_score' in display_df.columns:
+        display_df['Tendance'] = display_df['sentiment_score'].apply(
+            lambda x: "🟢 Bullish" if x > 0.1 else "🔴 Bearish" if x < -0.1 else "🟡 Neutre"
+        )
+    
+    if 'social_volume' in display_df.columns:
+        display_df['Activité'] = display_df['social_volume'].apply(
+            lambda x: "🔥 Élevée" if x > 800 else "📈 Moyenne" if x > 400 else "📉 Faible"
+        )
+    
+    # Formater les colonnes numériques
+    cols_to_format = ['sentiment_score', 'news_sentiment']
+    for col in cols_to_format:
+        if col in display_df.columns:
+            display_df[col] = display_df[col].apply(lambda x: f"{x:.3f}")
+    
+    # Sélectionner les colonnes à afficher
+    display_cols = ['symbol', 'Tendance', 'sentiment_score', 'social_volume', 'news_sentiment', 'Activité']
+    available_cols = [col for col in display_cols if col in display_df.columns]
+    
+    # Nettoyer les données pour éviter les erreurs de sérialisation
+    display_df_clean = clean_dataframe_for_display(display_df)
+    
+    st.dataframe(
+        display_df_clean[available_cols],
+        use_container_width=True,
+        column_config={
+            "symbol": st.column_config.TextColumn("Crypto", width="small"),
+            "sentiment_score": st.column_config.NumberColumn("Score Sentiment", width="small"),
+            "social_volume": st.column_config.NumberColumn("Volume Social", width="small"),
+            "news_sentiment": st.column_config.NumberColumn("Sentiment News", width="small"),
+        }
+    )
+    
+    # === SIGNAUX DETAILLES ===
+    st.subheader("🚨 Signaux de Trading Détaillés")
+    
+    # Restructurer les signaux pour l'affichage
+    detailed_signals = []
+    for signal in signals:
+        if signal['symbol'] in selected_cryptos and 'signals' in signal:
+            for sig in signal['signals']:
+                # Calculer l'âge du signal
+                timestamp_str = sig.get('timestamp', '')
+                age = 'N/A'
+                if timestamp_str:
+                    try:
+                        sig_time = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+                        now = datetime.now(sig_time.tzinfo)
+                        delta = now - sig_time
+                        if delta.days > 0:
+                            age = f"{delta.days}j"
+                        else:
+                            hours = delta.seconds // 3600
+                            age = f"{hours}h"
+                    except:
+                        age = 'N/A'
+                
+                # Émoticônes pour les directions et forces
+                direction_emoji = {
+                    'Bullish': '🟢',
+                    'Bearish': '🔴',
+                    'Neutral': '🟡'
+                }
+                
+                strength_emoji = {
+                    'Strong': '💪',
+                    'Moderate': '👍',
+                    'Weak': '👌'
+                }
+                
+                detailed_signals.append({
+                    'Crypto': signal.get('symbol', 'N/A'),
+                    'Type': sig.get('type', 'N/A'),
+                    'Direction': f"{direction_emoji.get(sig.get('direction', ''), '')} {sig.get('direction', 'N/A')}",
+                    'Force': f"{strength_emoji.get(sig.get('strength', ''), '')} {sig.get('strength', 'N/A')}",
+                    'Confiance': f"{sig.get('confidence', 0):.0%}",
+                    'Âge': age
+                })
+    
+    if detailed_signals:
+        df_detailed = pd.DataFrame(detailed_signals)
+        
+        # Filtres pour les signaux
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            signal_types = st.multiselect(
+                "Type de signal:",
+                options=df_detailed['Type'].unique(),
+                default=df_detailed['Type'].unique()
+            )
+        
+        with col2:
+            directions = st.multiselect(
+                "Direction:",
+                options=[d.split(' ', 1)[1] if ' ' in d else d for d in df_detailed['Direction'].unique()],
+                default=[d.split(' ', 1)[1] if ' ' in d else d for d in df_detailed['Direction'].unique()]
+            )
+        
+        with col3:
+            min_confidence = st.slider(
+                "Confiance minimale:",
+                min_value=0,
+                max_value=100,
+                value=0,
+                step=5
+            )
+        
+        # Filtrer les signaux détaillés
+        filtered_detailed = df_detailed[
+            (df_detailed['Type'].isin(signal_types)) &
+            (df_detailed['Direction'].str.contains('|'.join(directions), na=False)) &
+            (df_detailed['Confiance'].str.rstrip('%').astype(float) >= min_confidence)
+        ]
+        
+        # Nettoyer les données pour éviter les erreurs de sérialisation
+        filtered_detailed_clean = clean_dataframe_for_display(filtered_detailed)
+        
+        st.dataframe(filtered_detailed_clean, use_container_width=True)
+        
+        # Statistiques des signaux
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            bullish_count = len([s for s in detailed_signals if 'Bullish' in s['Direction']])
+            st.metric("🟢 Signaux Bullish", bullish_count)
+        
+        with col2:
+            bearish_count = len([s for s in detailed_signals if 'Bearish' in s['Direction']])
+            st.metric("🔴 Signaux Bearish", bearish_count)
+        
+        with col3:
+            avg_confidence = np.mean([float(s['Confiance'].rstrip('%')) for s in detailed_signals])
+            st.metric("📊 Confiance Moyenne", f"{avg_confidence:.0f}%")
+    
+    else:
+        st.info("Aucun signal détaillé trouvé pour les cryptos sélectionnées")
+    
+    # === DONNEES BRUTES (dans un expandeur) ===
+    with st.expander("🔍 Voir les données brutes"):
+        st.json(sentiment_data)
 
 def show_data_status(scraped_data):
     """Affiche l'état des données disponibles"""
