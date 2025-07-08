@@ -1,103 +1,212 @@
-# CryptoTrader Dashboard - Business Intelligence
+# 📊 CryptoTrader Dashboard - Business Intelligence
 
-Ce projet combine un scraper de données crypto (HyperDash Top-Traders) avec un dashboard Streamlit moderne pour l'analyse et la visualisation de données de trading.
+Dashboard moderne de business intelligence pour l'analyse crypto basé sur Streamlit, avec des données enrichies et des visualisations interactives.
 
 ## 🚀 Fonctionnalités principales
 
 ### 📊 Dashboard Streamlit
-- **Vue d'ensemble** : KPI crypto, performance du marché, status des données
-- **Top Traders** : Analyse des meilleurs traders avec filtres avancés
-- **Analyse Crypto** : Prix, volumes, market cap, sentiment par crypto
-- **Données Live** : Prix en temps réel via Yahoo Finance
-- **Portfolio** : Simulateur de performance avec allocation personnalisée
-- **API Status** : Monitoring de l'API et diagnostic système
+- **🏠 Vue d'ensemble** : KPI du marché, top traders, prix crypto
+- **👑 Top Traders** : Analyse des 50 meilleurs traders avec filtres avancés
+- **📊 Analyse Crypto** : Analyse détaillée par cryptomonnaie avec données historiques
+- **📈 Sentiment** : Analyse de sentiment du marché avec signaux de trading
+- **⚙️ Données** : Monitoring et diagnostic des fichiers de données
 
-### 🔌 API FastAPI
-- Scraping automatisé des données HyperDash
-- Endpoints RESTful pour récupérer les données
-- Documentation interactive (Swagger)
-- Cache et optimisation des performances
-
-### 📈 Sources de données
-- **Données scrapées** : Top traders depuis HyperDash.info
-- **Données live** : Prix crypto via Yahoo Finance API
-- **Données simulées** : Génération automatique pour les tests
+### 🎯 Sources de données
+- **Données structurées** : 50 top traders avec métriques complètes
+- **Marché crypto** : 10 cryptomonnaies avec données temps réel simulées
+- **Données historiques** : 90 jours de données OHLC pour 5 cryptos
+- **Sentiment** : Signaux de trading et analyse de sentiment
+- **Format Excel** : Export automatique pour analyse externe
 
 ## 🛠️ Installation et Configuration
 
 ### Prérequis
 - Python 3.12+ 
-- Google Chrome (pour le scraping)
 - Environnement virtuel (déjà configuré dans `ds/`)
 
 ### Démarrage rapide
-1. **Lancement simple** : Double-cliquez sur `start_app.bat`
-2. **Choisissez le mode** :
-   - Option 1 : Dashboard Streamlit seulement
-   - Option 2 : API FastAPI seulement  
-   - Option 3 : Les deux (recommandé)
-
-### Installation manuelle des dépendances
 ```bash
 # Activation de l'environnement
 ds\Scripts\activate
 
-# Installation des packages
-pip install -r requirements.txt
+# Lancement de l'application
+streamlit run app_crypto_only.py
 ```
 
-### Lancement manuel
-```bash
-# Dashboard Streamlit
-streamlit run app.py
-
-# API FastAPI 
-uvicorn SRC.api.main:app --host 0.0.0.0 --port 8000
-
-# Les deux ensemble
-start uvicorn SRC.api.main:app --host 0.0.0.0 --port 8000
-streamlit run app.py
-```
+### URLs d'accès
+- **Dashboard** : http://localhost:8501
 
 ## 📁 Structure du projet
 
 ```
 business-reporting/
-├── app.py                     # Application Streamlit principale
-├── config.py                  # Configuration de l'application
-├── start_app.bat             # Script de lancement
-├── requirements.txt          # Dépendances Python
+├── app_crypto_only.py            # 🎯 Application Streamlit principale
+├── generate_sample_data.py       # 📊 Génération de données réalistes
+├── verify_data.py                # ✅ Vérification d'intégrité
+├── requirements.txt              # 📋 Dépendances Python
 ├── .streamlit/
-│   └── config.toml           # Configuration Streamlit
-├── SRC/                      # Code source de l'API
-│   ├── api/                  # Endpoints FastAPI
-│   └── core/                 # Logique métier
+│   └── config.toml               # Configuration Streamlit
 ├── data/
-│   └── processed/            # Données scrapées (JSON)
-│       ├── top_traders_data.json
-│       └── market_data.json
-├── ds/                       # Environnement virtuel Python
-└── DOCUMENTATION/            # Documentation technique
+│   └── processed/                # Données JSON structurées
+│       ├── top_traders_extended.json      # 50 traders
+│       ├── market_data_extended.json      # 10 cryptos
+│       ├── historical_data.json           # 450 points historiques
+│       └── sentiment_data.json            # Sentiment + signaux
+├── crypto_dashboard_data.xlsx    # 📊 Export Excel complet
+├── ds/                          # Environnement virtuel Python
+└── DOCUMENTATION/               # Documentation technique
 ```
 
 ## 🎯 Utilisation du Dashboard
 
 ### Navigation
-Le dashboard est organisé en 6 pages principales :
+Le dashboard est organisé en 5 pages principales :
 
 1. **🏠 Vue d'ensemble**
-   - Status API et données disponibles
-   - Performance des principales cryptos
-   - Distribution ROI des top traders
-   - Accès aux données scrapées
+   - Métriques KPI (traders, cryptos, données historiques, signaux)
+   - Top 10 traders par PnL avec graphique interactif
+   - Prix des cryptomonnaies avec visualisation
 
 2. **👑 Top Traders**
-   - Classement des meilleurs traders
-   - Filtres par ROI, nombre de trades, win rate
-   - Graphiques de corrélation et performance
-   - Données détaillées des traders
+   - Classement des 50 meilleurs traders
+   - Filtres par ROI minimum, nombre de trades
+   - Métriques de performance et distributions
+   - Graphiques de corrélation et analyses
 
 3. **📊 Analyse Crypto**
+   - Sélection de cryptomonnaies individuelles
+   - Métriques détaillées (prix, volume, market cap)
+   - Données historiques avec graphiques OHLC
+   - Comparaisons et analyses de marché
+
+4. **📈 Sentiment**
+   - Score de sentiment global du marché
+   - Analyse par cryptomonnaie avec filtres interactifs
+   - Signaux de trading détaillés avec âge et confiance
+   - Visualisations multi-dimensionnelles (scatter, radar)
+   - Statistiques des signaux bullish/bearish
+
+5. **⚙️ Données**
+   - État des fichiers de données JSON
+   - Diagnostic et monitoring
+   - Détails des structures de données
+
+### Fonctionnalités interactives
+- **Filtres dynamiques** : Cryptos, traders, ROI, confiance
+- **Graphiques Plotly** : Zoom, hover, sélection interactive
+- **Métriques temps réel** : Mise à jour avec cache intelligent
+- **Tableaux configurables** : Tri, colonnes optimisées
+
+## 📊 Données et formats
+
+### Fichiers JSON (data/processed/)
+- `top_traders_extended.json` : 50 traders avec 20+ métriques
+- `market_data_extended.json` : 10 cryptos avec données complètes
+- `historical_data.json` : 90 jours de données OHLC
+- `sentiment_data.json` : Sentiment global + 8 signaux crypto
+
+### Génération de nouvelles données
+```bash
+# Générer de nouvelles données d'exemple
+python generate_sample_data.py
+
+# Vérifier l'intégrité des données
+python verify_data.py
+```
+
+### Format des données traders
+```json
+{
+  "trader_id": "TopTrader_001",
+  "rank": 1,
+  "username": "Trader4523", 
+  "total_pnl": 145230.50,
+  "win_rate": 0.847,
+  "roi_percentage": 234.7,
+  "trading_style": "Swing Trading",
+  "country": "Singapore",
+  "followers": 5432,
+  "risk_score": 7,
+  "consistency_score": 87.3
+}
+```
+
+## 🔧 Personnalisation
+
+### Ajout de nouvelles cryptos
+Modifiez la liste dans `generate_sample_data.py` :
+```python
+cryptos = [
+    {"symbol": "NEW", "name": "New Crypto", "base_price": 1.50},
+    # ... autres cryptos
+]
+```
+
+### Nouvelles pages
+1. Créer une fonction `show_nouvelle_page(scraped_data)` dans `app_crypto_only.py`
+2. Ajouter l'option dans la selectbox de navigation
+3. Ajouter la condition dans `main()`
+
+### Styling et couleurs
+Modifier les palettes de couleurs dans les graphiques Plotly pour personnaliser l'apparence.
+
+## 🚨 Résolution de problèmes
+
+### Données manquantes
+```bash
+# Regénérer les données d'exemple
+python generate_sample_data.py
+
+# Vérifier les fichiers dans data/processed/
+python verify_data.py
+```
+
+### Erreurs de packages
+```bash
+# Réinstaller les dépendances
+pip install -r requirements.txt --force-reinstall
+```
+
+### Erreurs de sérialisation PyArrow
+L'application inclut une fonction `clean_dataframe_for_display()` qui résout automatiquement les problèmes de types mixtes dans les DataFrames.
+
+## 📊 Métriques et KPI
+
+### Traders
+- **Total PnL** : Profit/Loss total en USD
+- **Win Rate** : Taux de réussite des trades (0-1)
+- **ROI** : Retour sur investissement en %
+- **Risk Score** : Score de risque (1-10)
+- **Consistency** : Score de consistance (60-95%)
+
+### Cryptomonnaies
+- **Prix** : Prix actuel en USD
+- **Change 24h/7j/30j** : Variations en %
+- **Volume 24h** : Volume de trading
+- **Market Cap** : Capitalisation boursière
+- **ATH/ATL** : Plus haut/bas historique
+
+### Sentiment
+- **Score Global** : Score de sentiment (-1 à +1)
+- **Label** : Bullish/Bearish/Neutral
+- **Confiance** : Niveau de confiance (0-100%)
+- **Signaux** : Par type (Technical, Fundamental, On-Chain)
+
+## 📞 Support
+
+### Logs et debugging
+- Logs Streamlit : Visibles dans le terminal de lancement
+- Page diagnostic : "⚙️ Données" dans le dashboard
+- Vérification : `python verify_data.py`
+
+### Fichiers essentiels
+- Application : `app_crypto_only.py`
+- Données : Dossier `data/processed/`
+- Configuration : `.streamlit/config.toml`
+- Dépendances : `requirements.txt`
+
+## � Licence
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
    - Sélection de cryptomonnaies
    - Analyse prix, volume, market cap, sentiment
    - Métriques temps réel

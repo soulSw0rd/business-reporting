@@ -1,43 +1,37 @@
 # CryptoTrader Dashboard - Requirements Python
-# Version finale consolidée avec Streamlit
+# Version finale pour app_crypto_only.py
 
-# Framework Web
-fastapi
-requests
-websockets
-uvicorn
+# Framework principal
+streamlit>=1.28.0
+plotly>=5.17.0
+pandas>=2.1.0
+numpy>=1.24.0
 
-# Streamlit et visualisation
-streamlit
-plotly
-matplotlib
-seaborn
-
-# Analyse de données
-pandas
-numpy
-yfinance
-openpyxl
-xlsxwriter
+# Gestion fichiers et dates
+openpyxl>=3.1.0
+python-dateutil>=2.8.0
+pytz>=2023.3
 
 # Utilitaires
-python-dotenv
-click
-python-dateutil
-pytz
+requests>=2.31.0
+pathlib2>=2.3.7
 
-# Scraping avancé
-cloudscraper
-requests-toolbelt
-beautifulsoup4
-selenium
+# Export et manipulation données
+xlsxwriter>=3.1.0
 
-# Développement et tests
-pytest
-pytest-asyncio
-black
-flake8
+# Développement et tests (optionnel)
+pytest>=7.4.0
+black>=23.7.0
+flake8>=6.0.0
+
+# Pour extensions futures (API)
+fastapi>=0.100.0
+uvicorn>=0.23.0
+websockets>=11.0.0
+
+# Scraping (pour développements futurs)
+beautifulsoup4>=4.12.0
+requests-toolbelt>=1.0.0
 
 # Production
-gunicorn
-supervisor
+gunicorn>=21.2.0
