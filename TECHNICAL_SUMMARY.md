@@ -8,6 +8,17 @@
 - **Pages** : 5 pages principales
 - **Statut** : ✅ Entièrement fonctionnel
 
+### Fichiers Actifs
+- **`app_crypto_only.py`** : Application principale (seule version utilisée)
+- **`generate_sample_data.py`** : Génération de données réalistes
+- **`envsetup.py`** : Configuration environnement
+- **`requirements.txt`** : Dépendances optimisées
+
+### ⚠️ Fichiers Obsolètes (dossier old/)
+- `app.py`, `app_new.py`, `config.py` : Versions obsolètes
+- `verify_data.py`, `test_*.py` : Scripts obsolètes
+- **Ne pas utiliser** : Ces fichiers sont conservés pour l'historique uniquement
+
 ### Architecture
 ```
 app_crypto_only.py
@@ -166,18 +177,19 @@ pages = [
 
 ### Génération de Données
 ```bash
-python generate_sample_data.py  # Crée 4 fichiers JSON + Excel
-```
-
-### Vérification
-```bash
-python verify_data.py  # Valide intégrité des 4 fichiers
+python generate_sample_data.py  # Crée 4 fichiers JSON dans data/processed/
 ```
 
 ### Lancement
 ```bash
-streamlit run app_crypto_only.py  # Port 8501
+ds\Scripts\activate             # Active l'environnement virtuel
+streamlit run app_crypto_only.py  # Lance l'application sur port 8501
 ```
+
+### Structure Simplifiée
+- **Données** : Uniquement les 4 fichiers JSON nécessaires
+- **Validation** : Intégrée dans l'application principale
+- **Export** : Supprimé pour simplifier (données JSON suffisantes)
 
 ## 📈 Métriques de Performance
 

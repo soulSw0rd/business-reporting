@@ -113,22 +113,48 @@ python verify_data.py
 
 ```
 business-reporting/
-├── 🎯 app_crypto_only.py              # ✅ Application principale (835 lignes)
-├── 📊 generate_sample_data.py         # ✅ Génération données (259 lignes)
-├── ✅ verify_data.py                  # ✅ Vérification intégrité (123 lignes)
-├── 📋 requirements.txt                # ✅ Dépendances consolidées (43 packages)
-├── 📊 crypto_dashboard_data.xlsx      # ✅ Export Excel complet
-├── 📁 data/processed/                 # ✅ Données JSON optimisées
-│   ├── top_traders_extended.json      # ✅ 50 traders × 20 métriques
-│   ├── market_data_extended.json      # ✅ 10 cryptos × 15 métriques
-│   ├── historical_data.json           # ✅ 450 points OHLC
-│   └── sentiment_data.json            # ✅ Sentiment + 8 signaux crypto
-├── ⚙️ .streamlit/config.toml          # ✅ Configuration optimisée
-├── 🏠 ds/                            # ✅ Environnement virtuel
-├── 📚 README.md                       # ✅ Documentation mise à jour
-├── 📖 GUIDE_DEMARRAGE.md             # ✅ Guide utilisateur actualisé
-└── 📁 DOCUMENTATION/                  # ✅ Documentation technique
+├── 🎯 FICHIERS ACTIFS
+│   ├── app_crypto_only.py              # ✅ Application principale (835 lignes)
+│   ├── generate_sample_data.py         # ✅ Génération données (189 lignes)
+│   ├── envsetup.py                     # ✅ Configuration environnement
+│   └── requirements.txt                # ✅ Dépendances optimisées
+│
+├── 📊 DONNÉES
+│   └── data/processed/                 # ✅ Données JSON structurées
+│       ├── top_traders_extended.json   # ✅ 50 traders × 20 métriques
+│       ├── market_data_extended.json   # ✅ 10 cryptos × 15 métriques  
+│       ├── historical_data.json        # ✅ 450 points OHLC (90j × 5 cryptos)
+│       └── sentiment_data.json         # ✅ 8 signaux + sentiment global
+│
+├── 📋 ENVIRONNEMENT
+│   ├── ds/                            # ✅ Environnement virtuel Python
+│   └── .streamlit/config.toml         # ✅ Configuration Streamlit
+│
+├── 📚 DOCUMENTATION
+│   ├── README.md                      # ✅ Guide principal mis à jour
+│   ├── GUIDE_DEMARRAGE.md             # ✅ Instructions utilisateur  
+│   ├── PROJET_COMPLETE.md             # ✅ Ce fichier (bilan projet)
+│   ├── TECHNICAL_SUMMARY.md           # ✅ Résumé technique
+│   └── DOCUMENTATION/
+│       ├── GRAPHIQUES_ANALYSE.md      # ✅ Guide des visualisations
+│       ├── MERMAID_VISUALIZATIONS.md  # ✅ Diagrammes Mermaid (20)
+│       └── DATA_PROCESSING_FLOW.md    # ✅ Flux de traitement (13 diagrammes)
+│
+└── 📁 old/                           # ⚠️ DOSSIER OBSOLÈTE (ne pas utiliser)
+    ├── app.py                         # Version obsolète
+    ├── app_new.py                     # Version obsolète
+    ├── config.py                      # Configuration obsolète
+    ├── verify_data.py                 # Script obsolète
+    └── test_*.py                      # Tests obsolètes
 ```
+
+### ⚠️ Important : Gestion du dossier old/
+
+Le dossier `old/` contient d'anciennes versions du projet qui **ne doivent plus être utilisées** :
+- Ces fichiers sont conservés uniquement pour l'historique
+- Ils peuvent contenir des références à des API inexistantes
+- Ils utilisent d'anciennes structures de données
+- **Seuls les fichiers à la racine du projet sont fonctionnels**
 
 ---
 

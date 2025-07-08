@@ -40,21 +40,67 @@ streamlit run app_crypto_only.py
 
 ```
 business-reporting/
-├── app_crypto_only.py            # 🎯 Application Streamlit principale
-├── generate_sample_data.py       # 📊 Génération de données réalistes
-├── verify_data.py                # ✅ Vérification d'intégrité
-├── requirements.txt              # 📋 Dépendances Python
-├── .streamlit/
-│   └── config.toml               # Configuration Streamlit
-├── data/
-│   └── processed/                # Données JSON structurées
-│       ├── top_traders_extended.json      # 50 traders
-│       ├── market_data_extended.json      # 10 cryptos
-│       ├── historical_data.json           # 450 points historiques
-│       └── sentiment_data.json            # Sentiment + signaux
-├── crypto_dashboard_data.xlsx    # 📊 Export Excel complet
-├── ds/                          # Environnement virtuel Python
-└── DOCUMENTATION/               # Documentation technique
+├── 🎯 FICHIERS PRINCIPAUX
+│   ├── app_crypto_only.py            # ✅ Application Streamlit principale
+│   ├── generate_sample_data.py       # ✅ Génération de données réalistes  
+│   └── envsetup.py                   # ✅ Configuration environnement
+│
+├── 📊 DONNÉES
+│   └── data/
+│       └── processed/                # ✅ Données JSON structurées
+│           ├── top_traders_extended.json      # 50 traders avec métriques
+│           ├── market_data_extended.json      # 10 cryptos avec données détaillées
+│           ├── historical_data.json           # 90 jours OHLC pour 5 cryptos
+│           └── sentiment_data.json            # Signaux et sentiment marché
+│
+├── 📋 CONFIGURATION
+│   ├── requirements.txt              # ✅ Dépendances Python optimisées
+│   ├── .streamlit/
+│   │   └── config.toml               # Configuration Streamlit
+│   └── ds/                           # ✅ Environnement virtuel
+│
+├── 📚 DOCUMENTATION
+│   ├── README.md                     # Guide principal
+│   ├── GUIDE_DEMARRAGE.md           # Instructions utilisateur
+│   ├── PROJET_COMPLETE.md           # Bilan projet
+│   ├── TECHNICAL_SUMMARY.md         # Résumé technique
+│   └── DOCUMENTATION/
+│       ├── GRAPHIQUES_ANALYSE.md    # Guide des visualisations
+│       ├── MERMAID_VISUALIZATIONS.md # Diagrammes Mermaid
+│       └── DATA_PROCESSING_FLOW.md  # Flux de traitement données
+│
+└── 📁 old/                          # ⚠️ Anciennes versions (ne pas utiliser)
+    ├── app.py                        # Version obsolète
+    ├── app_new.py                    # Version obsolète  
+    ├── config.py                     # Configuration obsolète
+    └── test_*.py                     # Tests obsolètes
+```
+│       ├── top_traders_extended.json      # 50 traders avec métriques
+│       ├── market_data_extended.json      # 10 cryptos avec données détaillées
+│       ├── historical_data.json           # 90 jours OHLC pour 5 cryptos
+│       └── sentiment_data.json            # Signaux et sentiment marché
+│
+├── 📋 CONFIGURATION
+│   ├── requirements.txt              # ✅ Dépendances Python optimisées
+│   ├── .streamlit/
+│   │   └── config.toml               # Configuration Streamlit
+│   └── ds/                           # ✅ Environnement virtuel
+│
+├── 📚 DOCUMENTATION
+│   ├── README.md                     # Guide principal
+│   ├── GUIDE_DEMARRAGE.md           # Instructions utilisateur
+│   ├── PROJET_COMPLETE.md           # Bilan projet
+│   ├── TECHNICAL_SUMMARY.md         # Résumé technique
+│   └── DOCUMENTATION/
+│       ├── GRAPHIQUES_ANALYSE.md    # Guide des visualisations
+│       ├── MERMAID_VISUALIZATIONS.md # Diagrammes Mermaid
+│       └── DATA_PROCESSING_FLOW.md  # Flux de traitement données
+│
+└── 📁 old/                          # ⚠️ Anciennes versions (ne pas utiliser)
+    ├── app.py                        # Version obsolète
+    ├── app_new.py                    # Version obsolète  
+    ├── config.py                     # Configuration obsolète
+    └── test_*.py                     # Tests obsolètes
 ```
 
 ## 🎯 Utilisation du Dashboard
@@ -99,9 +145,41 @@ Le dashboard est organisé en 5 pages principales :
 
 ## 📊 Données et formats
 
-### Fichiers JSON (data/processed/)
-- `top_traders_extended.json` : 50 traders avec 20+ métriques
-- `market_data_extended.json` : 10 cryptos avec données complètes
+### Fichiers actifs du projet
+
+#### 🎯 Applications principales
+- **`app_crypto_only.py`** : Application Streamlit principale (seule version utilisée)
+- **`generate_sample_data.py`** : Génération de données réalistes pour les 4 fichiers JSON
+- **`envsetup.py`** : Configuration et setup de l'environnement
+
+#### 📊 Données (data/processed/)
+- **`top_traders_extended.json`** : 50 traders avec 20+ métriques (PnL, ROI, trades)
+- **`market_data_extended.json`** : 10 cryptos avec données complètes (prix, volume, market cap)
+- **`historical_data.json`** : 90 jours de données OHLC pour 5 cryptos
+- **`sentiment_data.json`** : Signaux de trading et sentiment marché
+
+#### 📋 Configuration
+- **`requirements.txt`** : Dépendances Python optimisées (streamlit, plotly, pandas)
+- **`.streamlit/config.toml`** : Configuration Streamlit
+- **`ds/`** : Environnement virtuel Python configuré
+
+#### 📚 Documentation
+- **`README.md`** : Guide principal (ce fichier)
+- **`GUIDE_DEMARRAGE.md`** : Instructions de démarrage utilisateur
+- **`PROJET_COMPLETE.md`** : Bilan complet du projet
+- **`TECHNICAL_SUMMARY.md`** : Résumé technique détaillé
+- **`DOCUMENTATION/GRAPHIQUES_ANALYSE.md`** : Guide des visualisations
+- **`DOCUMENTATION/MERMAID_VISUALIZATIONS.md`** : Diagrammes Mermaid
+- **`DOCUMENTATION/DATA_PROCESSING_FLOW.md`** : Flux de traitement données
+
+#### ⚠️ Dossier old/ (OBSOLÈTE - Ne pas utiliser)
+Ce dossier contient d'anciennes versions du projet qui ne sont **plus utilisées** :
+- `app.py`, `app_new.py`, `app_backup*.py` : Versions obsolètes de l'application
+- `config.py` : Configuration obsolète
+- `test_*.py`, `debug_*.py` : Scripts de test obsolètes
+- `verify_data.py` : Script de vérification obsolète
+
+> **Important** : Seuls les fichiers à la racine du projet sont utilisés. Le dossier `old/` est conservé uniquement à des fins d'historique.
 - `historical_data.json` : 90 jours de données OHLC
 - `sentiment_data.json` : Sentiment global + 8 signaux crypto
 

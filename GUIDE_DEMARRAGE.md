@@ -6,7 +6,7 @@ Votre dashboard CryptoTrader est maintenant configuré avec :
 - ✅ Application Streamlit complète (`app_crypto_only.py`)
 - ✅ Données d'exemple réalistes (50 traders, 10 cryptos, 90 jours d'historique)
 - ✅ Fichiers JSON structurés dans `data/processed/`
-- ✅ Export Excel pour analyse externe
+- ✅ Environnement virtuel `ds/` configuré
 
 ## 🎯 Comment démarrer
 
@@ -23,10 +23,9 @@ streamlit run app_crypto_only.py
 ```bash
 # Créer de nouvelles données d'exemple
 python generate_sample_data.py
-
-# Vérifier l'intégrité des données
-python verify_data.py
 ```
+
+> **Note** : Le script `verify_data.py` du dossier `old/` n'est plus utilisé. La validation des données est intégrée dans l'application principale.
 
 ## 🌐 Accès au dashboard
 
@@ -36,14 +35,13 @@ Une fois lancé, accédez au dashboard via :
 
 ## 📊 Données disponibles
 
-### Fichiers JSON générés
+### Fichiers JSON générés (data/processed/)
 - `top_traders_extended.json` - 50 top traders avec 20+ métriques
-- `market_data_extended.json` - 10 cryptomonnaies avec données complètes
+- `market_data_extended.json` - 10 cryptomonnaies avec données complètes  
 - `historical_data.json` - 90 jours de données historiques OHLC
 - `sentiment_data.json` - Sentiment global + signaux de trading
 
-### Fichier Excel
-- `crypto_dashboard_data.xlsx` - Export complet de toutes les données
+> **Important** : L'export Excel automatique a été retiré pour simplifier le projet. Les données JSON contiennent toutes les informations nécessaires.
 
 ## 🔍 Pages du Dashboard
 
