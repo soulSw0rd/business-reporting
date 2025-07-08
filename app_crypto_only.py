@@ -13,6 +13,11 @@ import json
 from pathlib import Path
 import requests
 from datetime import datetime, timedelta
+import subprocess
+
+# --- AJOUT POUR LA PAGE PREDICTIONS ---
+from src.ml.predictor import CryptoMLPredictor, MLDataCollector
+# --- FIN AJOUT ---
 
 # Configuration de la page
 st.set_page_config(
@@ -22,23 +27,143 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Fonctions pour accéder aux données
-@st.cache_data(ttl=300)  # Cache pendant 5 minutes
+# Initialisation du prédicteur ML
+# On retire la base de données de simulation qui était source de problèmes
+predictor = CryptoMLPredictor(data_path="data/ml_training")
+
+# Fonctions de chargement de données
+@st.cache_data(ttl=600) # Cache de 10 minutes
+def load_traders_data_for_prediction():
+    """Charge le dernier fichier de données de traders pour la prédiction."""
+    try:
+        data_path = Path("data/processed")
+        trader_files = sorted(data_path.glob("top_traders_prediction_*.json"), reverse=True)
+        if trader_files:
+            with open(trader_files[0], 'r') as f:
+                return pd.DataFrame(json.load(f))
+    except (FileNotFoundError, IndexError):
+        return pd.DataFrame()
+    return pd.DataFrame()
+
+@st.cache_data(ttl=600)
+def load_market_data_for_prediction():
+    """Charge le dernier fichier de données de marché pour la prédiction."""
+    try:
+        data_path = Path("data/processed")
+        market_files = sorted(data_path.glob("market_data_prediction_*.json"), reverse=True)
+        if market_files:
+            with open(market_files[0], 'r') as f:
+                return json.load(f)
+    except (FileNotFoundError, IndexError):
+        return None
+    return None
+
+# Fonctions utilitaires
+def display_prediction(prediction, probability, trader_data, market_data):
+    """Affiche le résultat d'une prédiction avec une mise en page élégante."""
+    if probability is not None:
+        # Affichage du résultat texte avec couleur
+        if "Fortement" in prediction:
+            st.success(f"**Résultat :** {prediction}")
+        elif "Potentiellement" in prediction:
+            st.warning(f"**Résultat :** {prediction}")
+        else:
+            st.error(f"**Résultat :** {prediction}")
+
+        # Jauge de probabilité visuelle
+        fig = go.Figure(go.Indicator(
+            mode = "gauge+number",
+            value = probability * 100,
+            title = {'text': "Probabilité de Profit"},
+            number = {'suffix': "%"},
+            gauge = {
+                'axis': {'range': [0, 100]},
+                'bar': {'color': "white", 'thickness': 0.3},
+                'steps': [
+                    {'range': [0, 40], 'color': '#EF553B'},
+                    {'range': [40, 60], 'color': '#FECB52'},
+                    {'range': [60, 100], 'color': '#00CC96'}
+                ],
+            }))
+        fig.update_layout(height=250, margin=dict(l=30, r=30, t=50, b=20))
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # --- Section des Indicateurs Clés (KPIs) ---
+        st.markdown("---")
+        st.subheader("📊 Indicateurs Clés Analysés")
+        st.caption("Voici les données spécifiques qui ont été utilisées par le modèle pour cette prédiction.")
+
+        # KPIs du trader
+        st.markdown("##### Performance du Trader")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("PnL 7 derniers jours", trader_data.get('pnl_7d', 'N/A'))
+        col2.metric("PnL 30 derniers jours", trader_data.get('pnl_30d', 'N/A'))
+        col3.metric("Exposition 'Long'", trader_data.get('long_percentage', 'N/A'))
+
+        # KPIs du marché
+        st.markdown("##### Contexte du Marché")
+        btc_price = market_data.get('coingecko_btc', {}).get('price', 0)
+        fear_greed = market_data.get('fear_and_greed_index', {}).get('value', 0)
+        funding_rate = market_data.get('funding_rates', {}).get('BTCUSDT', {}).get('last_funding_rate', 0)
+        
+        col4, col5, col6 = st.columns(3)
+        col4.metric("Prix du Bitcoin", f"${btc_price:,.0f}")
+        col5.metric("Indice Peur & Cupidité", f"{fear_greed} / 100")
+        col6.metric("Taux de Financement", f"{funding_rate:.4%}" if funding_rate else "N/A")
+
+    else:
+        st.error(f"**Erreur de prédiction :** {prediction}")
+
+# --- MISE À JOUR DES FONCTIONS DE DONNÉES ---
+@st.cache_data(ttl=60)
 def get_scraped_data():
-    """Récupère les données scrapées depuis les fichiers JSON locaux"""
+    """
+    Récupère les données scrapées depuis les fichiers JSON locaux.
+    Sépare les données pour la prédiction et pour l'analyse.
+    """
     data_path = Path("data/processed")
-    scraped_data = {}
-    
-    if data_path.exists():
-        for json_file in data_path.glob("*.json"):
+    scraped_data = {
+        'traders_for_analysis': [],
+        'traders_for_prediction': []
+    }
+    if not data_path.exists():
+        return scraped_data
+        
+    # Charger tous les fichiers non-traders
+    for json_file in data_path.glob("*.json"):
+        if "trader" not in json_file.name.lower():
             try:
                 with open(json_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    scraped_data[json_file.stem] = data
-            except Exception as e:
-                st.error(f"Erreur lors du chargement de {json_file}: {e}")
+                    scraped_data[json_file.stem] = json.load(f)
+            except Exception:
+                pass
+
+    # --- Chargement des données pour l'ANALYSE ---
+    # Utilise le fichier "extended" qui a des colonnes comme 'username', 'roi_percentage'
+    extended_file = data_path / "top_traders_extended.json"
+    if extended_file.exists():
+        try:
+            with open(extended_file, 'r', encoding='utf-8') as f:
+                scraped_data['traders_for_analysis'] = json.load(f)
+        except Exception:
+            pass # La liste reste vide
+
+    # --- Chargement des données pour la PRÉDICTION ---
+    # Utilise le plus récent des fichiers qui a la colonne 'address' et les PNL
+    trader_files = sorted(data_path.glob("top_traders_*.json"), reverse=True)
+    if trader_files:
+        # Exclure le fichier 'extended' pour ne pas le prendre pour la prédiction
+        prediction_files = [f for f in trader_files if "extended" not in f.name]
+        if prediction_files:
+            latest_trader_file = prediction_files[0]
+            try:
+                with open(latest_trader_file, 'r', encoding='utf-8') as f:
+                    scraped_data['traders_for_prediction'] = json.load(f)
+            except Exception:
+                pass # La liste reste vide
     
     return scraped_data
+# --- FIN MISE À JOUR ---
 
 def main():
     st.title("₿ CryptoTrader Dashboard - Business Intelligence")
@@ -46,9 +171,15 @@ def main():
     
     # Sidebar pour la navigation
     st.sidebar.title("🚀 Navigation")
+    
+    # Bouton pour forcer le rafraîchissement
+    if st.sidebar.button("🔄 Forcer le rafraîchissement des données"):
+        st.cache_data.clear()
+        st.rerun()
+
     page = st.sidebar.selectbox(
         "Choisir une page",
-        ["🏠 Vue d'ensemble", "👑 Top Traders", "📊 Analyse Crypto", "📈 Sentiment", "⚙️ Données"]
+        ["🏠 Vue d'ensemble", "👑 Top Traders", "🔮 Prédictions", "📊 Analyse Crypto", "📈 Sentiment", "⚙️ Données"]
     )
     
     # Vérification des données disponibles
@@ -59,6 +190,8 @@ def main():
         show_overview(scraped_data)
     elif page == "👑 Top Traders":
         show_top_traders(scraped_data)
+    elif page == "🔮 Prédictions":
+        show_predictions_page(scraped_data)
     elif page == "📊 Analyse Crypto":
         show_crypto_analysis(scraped_data)
     elif page == "📈 Sentiment":
@@ -70,126 +203,71 @@ def show_overview(scraped_data):
     """Affiche la page de vue d'ensemble basée sur les données réelles"""
     st.header("🏠 Vue d'ensemble du marché crypto")
     
-    # Métriques principales basées sur les données réelles
+    # --- Utilisation EXPLICITE des données d'ANALYSE ---
+    traders_list = scraped_data.get('traders_for_analysis', [])
+    market_data = scraped_data.get('market_data_extended', {})
+    historical_data = scraped_data.get('historical_data', [])
+    sentiment_data = scraped_data.get('sentiment_data', {})
+
+    # Métriques principales
     col1, col2, col3, col4 = st.columns(4)
-    
     with col1:
-        traders_count = 0
-        if scraped_data and 'top_traders_extended' in scraped_data:
-            traders_data = scraped_data['top_traders_extended']
-            traders_count = len(traders_data) if isinstance(traders_data, list) else 0
-        st.metric("Total Traders", traders_count)
-    
+        st.metric("Total Traders Analysés", len(traders_list))
     with col2:
-        crypto_count = 0
-        if scraped_data and 'market_data_extended' in scraped_data:
-            market_data = scraped_data['market_data_extended']
-            if isinstance(market_data, dict) and 'cryptocurrencies' in market_data:
-                crypto_count = len(market_data['cryptocurrencies'])
-        st.metric("Cryptomonnaies", crypto_count)
-    
+        crypto_count = len(market_data.get('cryptocurrencies', []))
+        st.metric("Cryptomonnaies Suivies", crypto_count)
     with col3:
-        historical_points = 0
-        if scraped_data and 'historical_data' in scraped_data:
-            historical_data = scraped_data['historical_data']
-            historical_points = len(historical_data) if isinstance(historical_data, list) else 0
-        st.metric("Points Historiques", historical_points)
-    
+        st.metric("Points de Données Historiques", len(historical_data))
     with col4:
-        signals_count = 0
-        if scraped_data and 'sentiment_data' in scraped_data:
-            sentiment_data = scraped_data['sentiment_data']
-            if isinstance(sentiment_data, dict) and 'signals' in sentiment_data:
-                signals_count = len(sentiment_data['signals'])
-        st.metric("Signaux Sentiment", signals_count)
+        signals_count = len(sentiment_data.get('signals', []))
+        st.metric("Signaux de Sentiment", signals_count)
     
     st.markdown("---")
     
-    # Graphiques basés sur les données réelles
+    # Graphiques
     col1, col2 = st.columns(2)
-    
     with col1:
-        st.subheader("💰 Top 10 Traders par PnL")
-        if scraped_data and 'top_traders_extended' in scraped_data:
-            traders_data = scraped_data['top_traders_extended']
-            if isinstance(traders_data, list) and traders_data:
-                df = pd.DataFrame(traders_data)
-                if 'total_pnl' in df.columns and 'username' in df.columns:
-                    top_traders = df.nlargest(10, 'total_pnl')
-                    fig = px.bar(
-                        top_traders,
-                        x='username',
-                        y='total_pnl',
-                        title="Top 10 Traders",
-                        color='total_pnl',
-                        color_continuous_scale='Viridis'
-                    )
-                    fig.update_layout(height=400)
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.warning("Colonnes manquantes dans les données traders")
+        st.subheader("💰 Top 10 Traders par PnL Total")
+        st.caption("Basé sur les données d'analyse enrichies.")
+        if traders_list:
+            df = pd.DataFrame(traders_list)
+            if 'total_pnl' in df.columns and 'username' in df.columns:
+                top_traders = df.nlargest(10, 'total_pnl')
+                fig = px.bar(top_traders, x='username', y='total_pnl', title="Top 10 Traders par Profit", color='total_pnl', color_continuous_scale='Viridis')
+                st.plotly_chart(fig, use_container_width=True)
             else:
-                st.warning("Aucune donnée trader disponible")
+                st.warning("Données traders d'analyse incomplètes.")
         else:
-            st.warning("Fichier top_traders_extended.json introuvable")
+            st.warning("Aucune donnée d'analyse de trader trouvée.")
     
     with col2:
-        st.subheader("📊 Prix des Cryptomonnaies")
-        if scraped_data and 'market_data_extended' in scraped_data:
-            market_data = scraped_data['market_data_extended']
-            if isinstance(market_data, dict) and 'cryptocurrencies' in market_data:
-                cryptos = market_data['cryptocurrencies']
-                if cryptos:
-                    df = pd.DataFrame(cryptos)
-                    if 'symbol' in df.columns and 'price' in df.columns:
-                        fig = px.bar(
-                            df,
-                            x='symbol',
-                            y='price',
-                            title="Prix par Crypto",
-                            color='price',
-                            color_continuous_scale='Blues'
-                        )
-                        fig.update_layout(height=400)
-                        st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.warning("Colonnes manquantes dans les données crypto")
-                else:
-                    st.warning("Aucune donnée crypto disponible")
+        st.subheader("📊 Prix Actuels des Cryptomonnaies")
+        st.caption("Snapshot des prix du marché.")
+        cryptos = market_data.get('cryptocurrencies', [])
+        if cryptos:
+            df = pd.DataFrame(cryptos)
+            if 'symbol' in df.columns and 'price' in df.columns:
+                fig = px.bar(df, x='symbol', y='price', title="Prix par Crypto", color='price', color_continuous_scale='Blues')
+                st.plotly_chart(fig, use_container_width=True)
             else:
-                st.warning("Structure incorrecte pour market_data_extended")
+                st.warning("Données de marché incomplètes.")
         else:
-            st.warning("Fichier market_data_extended.json introuvable")
+            st.warning("Aucune donnée de marché disponible.")
 
 def show_top_traders(scraped_data):
     """Affiche l'analyse des top traders basée sur les données réelles"""
     st.header("👑 Analyse des Top Traders")
     
-    # Données des traders depuis les fichiers JSON
-    traders_df = None
-    
-    if scraped_data:
-        # Priorité au fichier top_traders_extended
-        if 'top_traders_extended' in scraped_data:
-            data = scraped_data['top_traders_extended']
-            if isinstance(data, list):
-                traders_df = pd.DataFrame(data)
-                st.info("📁 Données chargées depuis top_traders_extended.json")
-        
-        # Sinon, chercher d'autres fichiers traders
-        if traders_df is None:
-            for filename, data in scraped_data.items():
-                if 'trader' in filename.lower() and isinstance(data, list) and 'extended' in filename:
-                    traders_df = pd.DataFrame(data)
-                    st.info(f"📁 Données chargées depuis {filename}")
-                    break
-    
-    if traders_df is None:
-        st.error("❌ Aucune donnée trader trouvée dans les fichiers JSON")
-        st.info("Assurez-vous que le fichier top_traders_extended.json existe dans data/processed/")
+    # --- Utilisation EXPLICITE des données d'ANALYSE ---
+    traders_list = scraped_data.get('traders_for_analysis', [])
+    if not traders_list:
+        st.error("❌ Aucune donnée d'analyse de trader trouvée.")
+        st.info("Vérifiez que le fichier `top_traders_extended.json` existe et est valide.")
         return
+        
+    traders_df = pd.DataFrame(traders_list)
     
-    # Vérifier les colonnes nécessaires
+    # Vérifier les colonnes nécessaires pour l'analyse
     required_columns = ['roi_percentage', 'total_trades', 'win_rate', 'total_pnl', 'username']
     missing_columns = [col for col in required_columns if col not in traders_df.columns]
     
@@ -292,6 +370,10 @@ def show_crypto_analysis(scraped_data):
         return
     
     df = pd.DataFrame(cryptos)
+    
+    # Correction pour le ArrowTypeError : convertir les colonnes potentiellement mixtes
+    if 'max_supply' in df.columns:
+        df['max_supply'] = pd.to_numeric(df['max_supply'], errors='coerce').fillna(0)
     
     # Sélection de crypto
     col1, col2 = st.columns(2)
@@ -498,6 +580,7 @@ def show_sentiment_analysis(scraped_data):
             
             # Affichage brut des données
             st.subheader("📊 Données brutes")
+            st.caption("Données de sentiment brutes agrégées par cryptomonnaie.")
             st.dataframe(df_signals, use_container_width=True)
         else:
             st.warning("Colonne 'symbol' manquante dans les signaux")
@@ -505,72 +588,86 @@ def show_sentiment_analysis(scraped_data):
         st.warning("Aucun signal trouvé")
 
 def show_data_status(scraped_data):
-    """Affiche l'état des données disponibles"""
-    st.header("⚙️ État des Données")
+    """Affiche le statut des données locales."""
+    st.header("⚙️ Statut des Données")
+    st.info("Cette page montre les informations sur les derniers fichiers de données chargés.")
     
-    if not scraped_data:
-        st.error("❌ Aucune donnée chargée")
+    data_path = Path("data/processed")
+    if not data_path.exists():
+        st.error("Le dossier data/processed n'existe pas.")
         return
     
-    st.success(f"✅ {len(scraped_data)} fichiers de données chargés")
+    files_info = []
+    for json_file in data_path.glob("*.json"):
+        try:
+            mtime = datetime.fromtimestamp(json_file.stat().st_mtime)
+            files_info.append({
+                "Fichier": json_file.name,
+                "Dernière modification": mtime.strftime('%Y-%m-%d %H:%M:%S'),
+                "Taille (ko)": f"{json_file.stat().st_size / 1024:.2f}"
+            })
+        except Exception:
+            pass
+
+    if files_info:
+        df = pd.DataFrame(files_info)
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.warning("Aucun fichier JSON trouvé dans data/processed.")
+
+# --- DEBUT NOUVELLE PAGE PREDICTIONS ---
+def show_predictions_page(scraped_data):
+    """Affiche la page des prédictions de profitabilité des traders."""
+    st.subheader("🔮 Prédictions de Profitabilité des Traders")
     
-    # Tableau de statut des fichiers
-    file_status = []
-    expected_files = [
-        'top_traders_extended',
-        'market_data_extended', 
-        'historical_data',
-        'sentiment_data'
-    ]
-    
-    for file in expected_files:
-        if file in scraped_data:
-            data = scraped_data[file]
-            if isinstance(data, list):
-                count = len(data)
-                status = f"✅ {count} entrées"
-            elif isinstance(data, dict):
-                if 'cryptocurrencies' in data:
-                    count = len(data['cryptocurrencies'])
-                    status = f"✅ {count} cryptos"
-                elif 'signals' in data:
-                    count = len(data['signals'])
-                    status = f"✅ {count} signaux"
-                else:
-                    status = "✅ Données disponibles"
-            else:
-                status = "⚠️ Format inattendu"
-        else:
-            status = "❌ Manquant"
-        
-        file_status.append({
-            'Fichier': f"{file}.json",
-            'Statut': status
-        })
-    
-    df_status = pd.DataFrame(file_status)
-    st.dataframe(df_status, use_container_width=True)
-    
-    # Détails des fichiers
-    st.subheader("📁 Détails des fichiers")
-    
-    for filename, data in scraped_data.items():
-        with st.expander(f"📄 {filename}.json"):
-            st.write(f"**Type:** {type(data)}")
+    if st.button("🔄 Générer de nouvelles données de prédiction"):
+        try:
+            # Exécuter le nouveau script de génération de données
+            result = subprocess.run(['python', 'generate_prediction_data.py'], capture_output=True, text=True, check=True)
+            st.toast("Nouvelles données générées !")
+            print(result.stdout)
+            st.cache_data.clear() # Vider le cache pour recharger les nouvelles données
+        except subprocess.CalledProcessError as e:
+            st.error(f"Erreur lors de la génération des données : {e.stderr}")
+        except FileNotFoundError:
+            st.error("Erreur : Le script 'generate_prediction_data.py' est introuvable.")
+
+    # Charger les données depuis les nouveaux fichiers
+    traders_df = load_traders_data_for_prediction()
+    market_data = load_market_data_for_prediction()
+
+    if traders_df.empty or market_data is None:
+        st.warning("Aucune donnée de prédiction disponible. Veuillez d'abord en générer.")
+        return
+
+    st.dataframe(traders_df)
+
+    selected_trader_address = st.selectbox(
+        "Sélectionnez un trader pour voir les prédictions :",
+        traders_df['address'],
+        format_func=lambda x: f"{x[:6]}...{x[-4:]}"
+    )
             
-            if isinstance(data, list):
-                st.write(f"**Nombre d'entrées:** {len(data)}")
-                if data:
-                    st.write(f"**Première entrée:**")
-                    st.json(data[0])
-            elif isinstance(data, dict):
-                st.write(f"**Clés principales:** {list(data.keys())}")
-                if 'cryptocurrencies' in data:
-                    st.write(f"**Nombre de cryptos:** {len(data['cryptocurrencies'])}")
-                elif 'signals' in data:
-                    st.write(f"**Nombre de signaux:** {len(data['signals'])}")
-            else:
-                st.json(data)
+    if selected_trader_address:
+        trader_data = traders_df[traders_df['address'] == selected_trader_address].iloc[0]
+        
+        st.write(f"#### Analyse pour le trader : `{selected_trader_address}`")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.info("**Prédiction à 7 jours**")
+            if st.button("Lancer la prédiction (7 jours)"):
+                pred_7d, prob_7d = predictor.predict_trader_profitability(trader_data, market_data, horizon_days=7)
+                display_prediction(pred_7d, prob_7d, trader_data, market_data)
+        
+        with col2:
+            st.info("**Prédiction à 30 jours**")
+            if st.button("Lancer la prédiction (30 jours)"):
+                pred_30d, prob_30d = predictor.predict_trader_profitability(trader_data, market_data, horizon_days=30)
+                display_prediction(pred_30d, prob_30d, trader_data, market_data)
+
+# --- FIN NOUVELLE PAGE PREDICTIONS ---
 
 if __name__ == "__main__":
     main()
