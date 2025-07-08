@@ -95,12 +95,20 @@ def scrape_top_traders():
 
         for row in trader_rows:
             link_element = row.find('a', href=lambda href: href and href.startswith('/trader/'))
+            
+            pnl = "N/A"
+            # On cible la 6ème colonne (index 5) qui contient le PnL 7d
+            all_cols = row.find_all('td')
+            if len(all_cols) > 5:
+                pnl_col = all_cols[5]
+                # On cherche un span avec la bonne couleur (vert ou rouge)
+                pnl_span = pnl_col.find('span', class_=lambda c: c and ('text-emerald-400' in c or 'text-rose-400' in c))
+                if pnl_span:
+                    pnl = pnl_span.text.strip()
+
             if link_element:
                 trader_address = link_element['href'].split('/')[-1]
                 
-                pnl_element = row.find('div', class_=lambda c: c and 'text-green-400' in c)
-                pnl = pnl_element.text.strip() if pnl_element else "N/A"
-
                 traders_data.append({
                     "address": trader_address,
                     "pnl_7d": pnl, 

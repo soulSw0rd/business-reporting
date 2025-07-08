@@ -1,0 +1,214 @@
+{
+  "timestamp": "2025-07-01T14:40:49.865257",
+  "overall_sentiment": {
+    "score": 0.041764356895022114,
+    "label": "Bullish",
+    "confidence": 0.7911866600457977
+  },
+  "signals": [
+    {
+      "symbol": "BTC",
+      "sentiment_score": -0.105,
+      "social_volume": 952,
+      "news_sentiment": 0.232,
+      "signals": [
+        {
+          "type": "Fundamental",
+          "direction": "Bearish",
+          "strength": "Weak",
+          "confidence": 0.88,
+          "timestamp": "2025-07-01T07:40:49.866257"
+        },
+        {
+          "type": "Technical",
+          "direction": "Bearish",
+          "strength": "Moderate",
+          "confidence": 0.62,
+          "timestamp": "2025-06-30T23:40:49.866257"
+        }
+      ]
+    },
+    {
+      "symbol": "ETH",
+      "sentiment_score": -0.746,
+      "social_volume": 993,
+      "news_sentiment": 0.401,
+      "signals": [
+        {
+          "type": "Fundamental",
+          "direction": "Bearish",
+          "strength": "Strong",
+          "confidence": 0.61,
+          "timestamp": "2025-07-01T09:40:49.866257"
+        },
+        {
+          "type": "On-Chain",
+          "direction": "Bearish",
+          "strength": "Weak",
+          "confidence": 0.84,
+          "timestamp": "2025-06-30T20:40:49.866257"
+        },
+        {
+          "type": "Technical",
+          "direction": "Bearish",
+          "strength": "Strong",
+          "confidence": 0.69,
+          "timestamp": "2025-07-01T09:40:49.866257"
+        }
+      ]
+    },
+    {
+      "symbol": "ADA",
+      "sentiment_score": -0.318,
+      "social_volume": 1031,
+      "news_sentiment": -0.889,
+      "signals": [
+        {
+          "type": "Technical",
+          "direction": "Bearish",
+          "strength": "Strong",
+          "confidence": 0.73,
+          "timestamp": "2025-06-30T17:40:49.866257"
+        },
+        {
+          "type": "Technical",
+          "direction": "Bullish",
+          "strength": "Weak",
+          "confidence": 0.66,
+          "timestamp": "2025-07-01T00:40:49.867250"
+        },
+        {
+          "type": "Technical",
+          "direction": "Bearish",
+          "strength": "Moderate",
+          "confidence": 0.88,
+          "timestamp": "2025-07-01T07:40:49.867250"
+        }
+      ]
+    },
+    {
+      "symbol": "SOL",
+      "sentiment_score": -0.332,
+      "social_volume": 954,
+      "news_sentiment": 0.899,
+      "signals": [
+        {
+          "type": "Technical",
+          "direction": "Bullish",
+          "strength": "Weak",
+          "confidence": 0.83,
+          "timestamp": "2025-06-30T19:40:49.867250"
+        },
+        {
+          "type": "Social",
+          "direction": "Bearish",
+          "strength": "Strong",
+          "confidence": 0.77,
+          "timestamp": "2025-07-01T12:40:49.867250"
+        }
+      ]
+    },
+    {
+      "symbol": "DOT",
+      "sentiment_score": -0.342,
+      "social_volume": 979,
+      "news_sentiment": -0.005,
+      "signals": [
+        {
+          "type": "Fundamental",
+          "direction": "Bearish",
+          "strength": "Weak",
+          "confidence": 0.71,
+          "timestamp": "2025-06-30T21:40:49.867250"
+        },
+        {
+          "type": "Fundamental",
+          "direction": "Bullish",
+          "strength": "Strong",
+          "confidence": 0.74,
+          "timestamp": "2025-07-01T06:40:49.867250"
+        },
+        {
+          "type": "On-Chain",
+          "direction": "Bearish",
+          "strength": "Strong",
+          "confidence": 0.7,
+          "timestamp": "2025-06-30T20:40:49.867250"
+        }
+      ]
+    },
+    {
+      "symbol": "AVAX",
+      "sentiment_score": 0.484,
+      "social_volume": 970,
+      "news_sentiment": -0.295,
+      "signals": [
+        {
+          "type": "Fundamental",
+          "direction": "Bullish",
+          "strength": "Moderate",
+          "confidence": 0.53,
+          "timestamp": "2025-06-30T17:40:49.867250"
+        },
+        {
+          "type": "Technical",
+          "direction": "Bearish",
+          "strength": "Strong",
+          "confidence": 0.72,
+          "timestamp": "2025-07-01T07:40:49.867250"
+        },
+        {
+          "type": "Technical",
+          "direction": "Bullish",
+          "strength": "Weak",
+          "confidence": 0.93,
+          "timestamp": "2025-07-01T01:40:49.867250"
+        }
+      ]
+    },
+    {
+      "symbol": "MATIC",
+      "sentiment_score": -0.753,
+      "social_volume": 1007,
+      "news_sentiment": -0.357,
+      "signals": [
+        {
+          "type": "Social",
+          "direction": "Bearish",
+          "strength": "Strong",
+          "confidence": 0.91,
+          "timestamp": "2025-07-01T04:40:49.867250"
+        },
+        {
+          "type": "Fundamental",
+          "direction": "Bullish",
+          "strength": "Moderate",
+          "confidence": 0.72,
+          "timestamp": "2025-06-30T22:40:49.868247"
+        }
+      ]
+    },
+    {
+      "symbol": "LINK",
+      "sentiment_score": -0.596,
+      "social_volume": 955,
+      "news_sentiment": 0.674,
+      "signals": [
+        {
+          "type": "On-Chain",
+          "direction": "Bearish",
+          "strength": "Weak",
+          "confidence": 0.82,
+          "timestamp": "2025-07-01T11:40:49.868247"
+        },
+        {
+          "type": "Fundamental",
+          "direction": "Bearish",
+          "strength": "Moderate",
+          "confidence": 0.8,
+          "timestamp": "2025-06-30T19:40:49.868247"
+        }
+      ]
+    }
+  ]
+}
