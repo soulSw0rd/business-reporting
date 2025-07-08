@@ -1,0 +1,122 @@
+[
+  {
+    "address": "0x1a2b3c4",
+    "pnl_7d": 3500.25,
+    "pnl_30d": 18000.75,
+    "win_rate": 0.725,
+    "total_trades": 145,
+    "roi_percentage": 85.3,
+    "sharpe_ratio": 2.1,
+    "max_drawdown": 12.5,
+    "volatility": 0.35,
+    "avg_position_size": 15000.0
+  },
+  {
+    "address": "0x2b3c4d5",
+    "pnl_7d": 5200.50,
+    "pnl_30d": 28000.00,
+    "win_rate": 0.682,
+    "total_trades": 203,
+    "roi_percentage": 92.7,
+    "sharpe_ratio": 1.8,
+    "max_drawdown": 18.2,
+    "volatility": 0.42,
+    "avg_position_size": 22000.0
+  },
+  {
+    "address": "0x3c4d5e6",
+    "pnl_7d": 2100.00,
+    "pnl_30d": 12000.50,
+    "win_rate": 0.758,
+    "total_trades": 89,
+    "roi_percentage": 78.9,
+    "sharpe_ratio": 2.3,
+    "max_drawdown": 8.7,
+    "volatility": 0.28,
+    "avg_position_size": 8500.0
+  },
+  {
+    "address": "0x4d5e6f7",
+    "pnl_7d": 4800.25,
+    "pnl_30d": 25000.75,
+    "win_rate": 0.654,
+    "total_trades": 167,
+    "roi_percentage": 88.1,
+    "sharpe_ratio": 1.9,
+    "max_drawdown": 15.3,
+    "volatility": 0.38,
+    "avg_position_size": 18000.0
+  },
+  {
+    "address": "0x5e6f7g8",
+    "pnl_7d": 6500.00,
+    "pnl_30d": 35000.25,
+    "win_rate": 0.701,
+    "total_trades": 234,
+    "roi_percentage": 95.6,
+    "sharpe_ratio": 2.0,
+    "max_drawdown": 20.1,
+    "volatility": 0.45,
+    "avg_position_size": 28000.0
+  },
+  {
+    "address": "0x6f7g8h9",
+    "pnl_7d": 2800.75,
+    "pnl_30d": 14000.00,
+    "win_rate": 0.739,
+    "total_trades": 112,
+    "roi_percentage": 82.3,
+    "sharpe_ratio": 2.2,
+    "max_drawdown": 11.8,
+    "volatility": 0.32,
+    "avg_position_size": 12000.0
+  },
+  {
+    "address": "0x7g8h9i0",
+    "pnl_7d": 4200.50,
+    "pnl_30d": 22000.25,
+    "win_rate": 0.678,
+    "total_trades": 178,
+    "roi_percentage": 89.4,
+    "sharpe_ratio": 1.7,
+    "max_drawdown": 16.7,
+    "volatility": 0.40,
+    "avg_position_size": 20000.0
+  },
+  {
+    "address": "0x8h9i0j1",
+    "pnl_7d": 5800.25,
+    "pnl_30d": 32000.50,
+    "win_rate": 0.712,
+    "total_trades": 198,
+    "roi_percentage": 91.8,
+    "sharpe_ratio": 2.1,
+    "max_drawdown": 19.4,
+    "volatility": 0.43,
+    "avg_position_size": 25000.0
+  },
+  {
+    "address": "0x9i0j1k2",
+    "pnl_7d": 3200.00,
+    "pnl_30d": 16000.75,
+    "win_rate": 0.765,
+    "total_trades": 95,
+    "roi_percentage": 84.7,
+    "sharpe_ratio": 2.4,
+    "max_drawdown": 9.8,
+    "volatility": 0.29,
+    "avg_position_size": 11000.0
+  },
+  {
+    "address": "0xa0j1k2l",
+    "pnl_7d": 4500.75,
+    "pnl_30d": 24000.00,
+    "win_rate": 0.693,
+    "total_trades": 156,
+    "roi_percentage": 87.2,
+    "sharpe_ratio": 1.8,
+    "max_drawdown": 17.6,
+    "volatility": 0.39,
+    "avg_position_size": 19000.0
+  }
+]

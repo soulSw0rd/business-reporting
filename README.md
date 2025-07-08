@@ -1,230 +1,141 @@
-# CryptoTrader Dashboard - Business Intelligence
+# CryptoTrader Dashboard
 
-Ce projet combine un scraper de données crypto (HyperDash Top-Traders) avec un dashboard Streamlit moderne pour l'analyse et la visualisation de données de trading.
+## Description
 
-## 🚀 Fonctionnalités principales
+Un dashboard web simple pour analyser les performances des traders de cryptomonnaies. L'application utilise Streamlit pour créer une interface interactive avec des graphiques et des prédictions basées sur des données de trading.
 
-### 📊 Dashboard Streamlit
-- **Vue d'ensemble** : KPI crypto, performance du marché, status des données
-- **Top Traders** : Analyse des meilleurs traders avec filtres avancés
-- **Analyse Crypto** : Prix, volumes, market cap, sentiment par crypto
-- **Données Live** : Prix en temps réel via Yahoo Finance
-- **Portfolio** : Simulateur de performance avec allocation personnalisée
-- **API Status** : Monitoring de l'API et diagnostic système
 
-### 🔌 API FastAPI
-- Scraping automatisé des données HyperDash
-- Endpoints RESTful pour récupérer les données
-- Documentation interactive (Swagger)
-- Cache et optimisation des performances
+## Comment ça marche
 
-### 📈 Sources de données
-- **Données scrapées** : Top traders depuis HyperDash.info
-- **Données live** : Prix crypto via Yahoo Finance API
-- **Données simulées** : Génération automatique pour les tests
+Le dashboard affiche des informations sur :
+- Les performances des traders (profits/pertes)
+- Les prix des cryptomonnaies populaires
+- Des prédictions générées par des modèles de machine learning
+- L'analyse du sentiment du marché
 
-## 🛠️ Installation et Configuration
+Toutes les données sont stockées dans des fichiers JSON et mises à jour automatiquement.
+
+## Lancement rapide
+
+### Option 1: Script PowerShell
+```powershell
+.\start_dashboard.ps1
+```
+
+### Option 2: Script Batch
+```batch
+start_dashboard.bat
+```
+
+### Option 3: Commande directe
+```bash
+streamlit run crypto_dashboard.py --server.port 8504
+```
+
+Une fois lancé, ouvrez votre navigateur sur: http://localhost:8504
+
+## Pages disponibles
+
+### Vue d'ensemble
+- Résumé des métriques principales
+- Graphique des meilleurs traders
+- Aperçu du marché crypto
+
+### Prédictions ML
+- 50 prédictions avec niveau de confiance
+- Filtres pour trier les résultats
+- Graphiques de distribution
+
+### Analyse Crypto
+- Prix en temps réel de 10 cryptomonnaies
+- Graphiques interactifs
+
+### Sentiment Marché
+- Analyse des tendances du marché
+- Évolution temporelle du sentiment
+
+### Données & Config
+- Statut des sources de données
+- Configuration du système
+
+## Structure du projet
+
+```
+Projet-Etienne/
+├── crypto_dashboard.py          # Application principale
+├── start_dashboard.ps1          # Script de lancement PowerShell
+├── start_dashboard.bat          # Script de lancement Batch
+├── requirements.txt             # Dépendances Python
+├── PRODUCTION/                  # Modules de production
+│   ├── core/                    # Logique métier
+│   ├── dashboard/               # Composants interface
+│   └── models/                  # Modèles ML
+├── RESOURCES/                   # Données et configuration
+│   ├── configs/                 # Fichiers de configuration
+│   └── data/                    # Données JSON
+└── venv/                        # Environnement virtuel Python
+```
+
+## Installation
 
 ### Prérequis
-- Python 3.12+ 
-- Google Chrome (pour le scraping)
-- Environnement virtuel (déjà configuré dans `ds/`)
+- Python 3.8 ou plus récent
+- pip (gestionnaire de paquets Python)
 
-### Démarrage rapide
-1. **Lancement simple** : Double-cliquez sur `start_app.bat`
-2. **Choisissez le mode** :
-   - Option 1 : Dashboard Streamlit seulement
-   - Option 2 : API FastAPI seulement  
-   - Option 3 : Les deux (recommandé)
-
-### Installation manuelle des dépendances
+### Installation des dépendances
 ```bash
-# Activation de l'environnement
-ds\Scripts\activate
-
-# Installation des packages
 pip install -r requirements.txt
 ```
 
-### Lancement manuel
-```bash
-# Dashboard Streamlit
-streamlit run app.py
+### Dépendances principales
+- streamlit - Framework web
+- pandas - Manipulation de données
+- plotly - Graphiques interactifs
+- numpy - Calculs numériques
 
-# API FastAPI 
-uvicorn SRC.api.main:app --host 0.0.0.0 --port 8000
+## Configuration
 
-# Les deux ensemble
-start uvicorn SRC.api.main:app --host 0.0.0.0 --port 8000
-streamlit run app.py
-```
+Le fichier `RESOURCES/configs/app_config.json` contient la configuration :
+- Port du dashboard (8504 par défaut)
+- Chemins vers les données
+- Paramètres de cache
 
-## 📁 Structure du projet
+## Données utilisées
 
-```
-business-reporting/
-├── app.py                     # Application Streamlit principale
-├── config.py                  # Configuration de l'application
-├── start_app.bat             # Script de lancement
-├── requirements.txt          # Dépendances Python
-├── .streamlit/
-│   └── config.toml           # Configuration Streamlit
-├── SRC/                      # Code source de l'API
-│   ├── api/                  # Endpoints FastAPI
-│   └── core/                 # Logique métier
-├── data/
-│   └── processed/            # Données scrapées (JSON)
-│       ├── top_traders_data.json
-│       └── market_data.json
-├── ds/                       # Environnement virtuel Python
-└── DOCUMENTATION/            # Documentation technique
-```
+Les données sont stockées dans `RESOURCES/data/processed/` :
+- `market_data.json` - Prix et informations des cryptomonnaies
+- `top_traders_extended.json` - Performances des traders
+- `sentiment_data.json` - Données de sentiment du marché
+- `historical_data.json` - Historique des prix
+- `predictions_summary.json` - Prédictions ML
 
-## 🎯 Utilisation du Dashboard
+## Dépannage
 
-### Navigation
-Le dashboard est organisé en 6 pages principales :
-
-1. **🏠 Vue d'ensemble**
-   - Status API et données disponibles
-   - Performance des principales cryptos
-   - Distribution ROI des top traders
-   - Accès aux données scrapées
-
-2. **👑 Top Traders**
-   - Classement des meilleurs traders
-   - Filtres par ROI, nombre de trades, win rate
-   - Graphiques de corrélation et performance
-   - Données détaillées des traders
-
-3. **📊 Analyse Crypto**
-   - Sélection de cryptomonnaies
-   - Analyse prix, volume, market cap, sentiment
-   - Métriques temps réel
-   - Graphiques interactifs
-
-4. **🔥 Données Live**
-   - Prix crypto en temps réel (Yahoo Finance)
-   - Comparaison multi-crypto
-   - Performance relative
-   - Données historiques
-
-5. **📈 Performance Portfolio**
-   - Simulateur d'allocation de portfolio
-   - Calcul de performance historique
-   - Métriques de risque (drawdown, etc.)
-   - Paramètres de rééquilibrage
-
-6. **⚙️ API Status**
-   - Status de connexion API
-   - Diagnostic des dépendances
-   - Test des endpoints
-   - Monitoring des fichiers de données
-
-### Fonctionnalités interactives
-- **Filtres dynamiques** : Dates, cryptos, traders
-- **Graphiques Plotly** : Zoom, hover, sélection
-- **Métriques temps réel** : Mise à jour automatique
-- **Cache intelligent** : Optimisation des performances
-
-## 🔗 Intégration API
-
-### Endpoints disponibles
-- `GET /health` - Status de l'API
-- `GET /top-traders` - Données des top traders
-- `GET /market` - Données de marché
-- `POST /scrape` - Déclenchement du scraping
-
-### Utilisation des données
-Le dashboard peut fonctionner en mode :
-- **Hybride** : API + données locales + données live
-- **Local** : Fichiers JSON uniquement  
-- **Live** : Yahoo Finance pour les prix crypto
-
-### Configuration API
-Dans `config.py` :
-```python
-API_BASE_URL = "http://127.0.0.1:8000"
-API_TIMEOUT = 10
-CACHE_TTL = 300  # 5 minutes
-```
-
-## 📊 Données et formats
-
-### Fichiers JSON (data/processed/)
-- `top_traders_data.json` : Données des traders
-- `market_data.json` : Vue d'ensemble du marché
-
-### Format des données traders
-```json
-{
-  "trader_id": "TopTrader_001",
-  "rank": 1,
-  "username": "CryptoKing2024", 
-  "total_pnl": 145230.50,
-  "win_rate": 0.847,
-  "roi_percentage": 234.7,
-  "trading_style": "Swing Trading",
-  // ...
-}
-```
-
-## 🔧 Personnalisation
-
-### Ajout de nouvelles métriques
-Modifier les fonctions dans `app.py` :
-- `generate_crypto_sample_data()` pour les données crypto
-- `get_scraped_data()` pour les données locales
-
-### Nouvelles pages
-1. Créer une fonction `show_nouvelle_page()`
-2. Ajouter dans la selectbox de navigation
-3. Ajouter la condition dans `main()`
-
-### Styling CSS
-Modifier la section CSS dans `app.py` pour personnaliser l'apparence.
-
-## 🚨 Résolution de problèmes
-
-### API non accessible
-    ```bash
-# Vérifier si l'API est démarrée
-curl http://localhost:8000/health
-
-# Redémarrer l'API
-uvicorn SRC.api.main:app --host 0.0.0.0 --port 8000
-```
+### Le dashboard ne se lance pas
+1. Vérifiez que Python est installé : `python --version`
+2. Installez les dépendances : `pip install -r requirements.txt`
+3. Essayez un autre port : `streamlit run crypto_dashboard.py --server.port 8505`
 
 ### Données manquantes
-- Vérifier le dossier `data/processed/`
-- Exécuter le scraping depuis l'API
-- Utiliser les données de démonstration
+1. Vérifiez que le dossier `RESOURCES/data/processed/` existe
+2. Générez des données d'exemple : `python generate_sample_data.py`
+3. Utilisez le bouton "Rafraîchir" dans l'interface
 
-### Erreurs de packages
-    ```bash
-# Réinstaller les dépendances
-pip install -r requirements.txt --force-reinstall
-```
+### Erreurs de port
+Si le port 8504 est occupé, modifiez le port dans `app_config.json` ou utilisez la commande avec un autre port.
 
-## 📞 Support
+## Licence
 
-### Logs et debugging
-- Logs Streamlit : Terminal de lancement
-- Logs API : `http://localhost:8000/docs`
-- Diagnostic : Page "API Status" du dashboard
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
-### URLs importantes
-- **Dashboard** : http://localhost:8501
-- **API** : http://localhost:8000  
-- **Documentation** : http://localhost:8000/docs
+## Dernières modifications
 
-## 📄 Licence
-Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
-curl -X POST http://127.0.0.1:8000/scrape/top-traders
-```
+- Suppression de la page "Top Traders" 
+- Correction de l'erreur sur la page "Sentiment Marché"
+- Suppression de la page "Visualisations Avancées"
+- Nettoyage des fichiers temporaires
+- Interface simplifiée à 4 pages principales
 
-### 5. Vérifier les résultats
-
--   Le terminal où le serveur tourne affichera les logs du scraping en temps réel.
--   Une fois terminé, un fichier JSON contenant les données des traders sera créé dans le dossier `DATA/processed/`.
--   Le nom du fichier sera horodaté, par exemple : `top_traders_YYYYMMDD_HHMMSS.json`. 
+Version: 1.0.0
+Date: 2025-01-08
+URL: http://localhost:8504

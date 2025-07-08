@@ -1,0 +1,51 @@
+{
+    "app": {
+        "name": "Crypto-Tracker",
+        "version": "1.0.0",
+        "debug": false,
+        "environment": "production"
+    },
+    "dashboard": {
+        "title": "₿ CryptoTrader Dashboard - Business Intelligence",
+        "port": 8504,
+        "host": "localhost",
+        "cache_ttl": 600,
+        "max_traders_display": 20
+    },
+    "api": {
+        "host": "0.0.0.0",
+        "port": 8000,
+        "workers": 4,
+        "timeout": 30,
+        "rate_limit": "100/minute"
+    },
+    "ml": {
+        "model_path": "PRODUCTION/models/",
+        "training_samples": 1000,
+        "random_state": 42,
+        "test_size": 0.2,
+        "cv_folds": 5,
+        "confidence_threshold": 0.75
+    },
+    "scraping": {
+        "delay_between_requests": 2,
+        "max_retry_attempts": 3,
+        "timeout": 30,
+        "user_agent": "Crypto-Tracker/1.0.0",
+        "respect_robots_txt": true
+    },
+    "data": {
+        "processed_path": "RESOURCES/data/processed/",
+        "raw_path": "RESOURCES/data/raw/",
+        "training_path": "RESOURCES/data/training/",
+        "exports_path": "RESOURCES/data/exports/",
+        "max_file_age_days": 7
+    },
+    "logging": {
+        "level": "INFO",
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "file_path": "admin/logs/crypto_tracker.log",
+        "max_file_size_mb": 10,
+        "backup_count": 5
+    }
+} 

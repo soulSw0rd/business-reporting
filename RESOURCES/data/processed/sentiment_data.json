@@ -1,0 +1,179 @@
+{
+  "overall_sentiment": {
+    "score": 0.35,
+    "label": "Bullish",
+    "confidence": 0.78
+  },
+  "social_sentiment": 0.42,
+  "news_sentiment": 0.28,
+  "signals": [
+    {
+      "symbol": "BTC",
+      "sentiment_score": 0.45,
+      "confidence": 0.82,
+      "source": "social",
+      "timestamp": "2025-01-08T12:00:00"
+    },
+    {
+      "symbol": "ETH",
+      "sentiment_score": 0.38,
+      "confidence": 0.75,
+      "source": "social",
+      "timestamp": "2025-01-08T12:00:00"
+    },
+    {
+      "symbol": "SOL",
+      "sentiment_score": 0.52,
+      "confidence": 0.68,
+      "source": "news",
+      "timestamp": "2025-01-08T11:30:00"
+    },
+    {
+      "symbol": "BNB",
+      "sentiment_score": 0.25,
+      "confidence": 0.71,
+      "source": "social",
+      "timestamp": "2025-01-08T11:45:00"
+    },
+    {
+      "symbol": "XRP",
+      "sentiment_score": 0.62,
+      "confidence": 0.85,
+      "source": "news",
+      "timestamp": "2025-01-08T12:15:00"
+    },
+    {
+      "symbol": "BTC",
+      "sentiment_score": 0.32,
+      "confidence": 0.78,
+      "source": "social",
+      "timestamp": "2025-01-08T10:00:00"
+    },
+    {
+      "symbol": "ETH",
+      "sentiment_score": 0.41,
+      "confidence": 0.72,
+      "source": "news",
+      "timestamp": "2025-01-08T10:30:00"
+    },
+    {
+      "symbol": "BTC",
+      "sentiment_score": 0.28,
+      "confidence": 0.80,
+      "source": "social",
+      "timestamp": "2025-01-08T09:00:00"
+    },
+    {
+      "symbol": "ETH",
+      "sentiment_score": 0.35,
+      "confidence": 0.74,
+      "source": "social",
+      "timestamp": "2025-01-08T09:30:00"
+    },
+    {
+      "symbol": "SOL",
+      "sentiment_score": 0.48,
+      "confidence": 0.65,
+      "source": "news",
+      "timestamp": "2025-01-08T09:45:00"
+    },
+    {
+      "symbol": "BTC",
+      "sentiment_score": 0.22,
+      "confidence": 0.76,
+      "source": "social",
+      "timestamp": "2025-01-08T08:00:00"
+    },
+    {
+      "symbol": "ETH",
+      "sentiment_score": 0.30,
+      "confidence": 0.70,
+      "source": "news",
+      "timestamp": "2025-01-08T08:30:00"
+    },
+    {
+      "symbol": "BNB",
+      "sentiment_score": 0.18,
+      "confidence": 0.68,
+      "source": "social",
+      "timestamp": "2025-01-08T08:45:00"
+    },
+    {
+      "symbol": "XRP",
+      "sentiment_score": 0.55,
+      "confidence": 0.82,
+      "source": "news",
+      "timestamp": "2025-01-08T09:15:00"
+    },
+    {
+      "symbol": "BTC",
+      "sentiment_score": 0.15,
+      "confidence": 0.73,
+      "source": "social",
+      "timestamp": "2025-01-08T07:00:00"
+    },
+    {
+      "symbol": "ETH",
+      "sentiment_score": 0.25,
+      "confidence": 0.69,
+      "source": "social",
+      "timestamp": "2025-01-08T07:30:00"
+    },
+    {
+      "symbol": "SOL",
+      "sentiment_score": 0.42,
+      "confidence": 0.63,
+      "source": "news",
+      "timestamp": "2025-01-08T07:45:00"
+    },
+    {
+      "symbol": "BTC",
+      "sentiment_score": 0.38,
+      "confidence": 0.79,
+      "source": "social",
+      "timestamp": "2025-01-07T20:00:00"
+    },
+    {
+      "symbol": "ETH",
+      "sentiment_score": 0.33,
+      "confidence": 0.71,
+      "source": "news",
+      "timestamp": "2025-01-07T20:30:00"
+    },
+    {
+      "symbol": "BNB",
+      "sentiment_score": 0.21,
+      "confidence": 0.67,
+      "source": "social",
+      "timestamp": "2025-01-07T21:00:00"
+    },
+    {
+      "symbol": "XRP",
+      "sentiment_score": 0.58,
+      "confidence": 0.84,
+      "source": "news",
+      "timestamp": "2025-01-07T21:30:00"
+    },
+    {
+      "symbol": "BTC",
+      "sentiment_score": 0.41,
+      "confidence": 0.77,
+      "source": "social",
+      "timestamp": "2025-01-07T18:00:00"
+    },
+    {
+      "symbol": "ETH",
+      "sentiment_score": 0.36,
+      "confidence": 0.73,
+      "source": "social",
+      "timestamp": "2025-01-07T18:30:00"
+    },
+    {
+      "symbol": "SOL",
+      "sentiment_score": 0.49,
+      "confidence": 0.66,
+      "source": "news",
+      "timestamp": "2025-01-07T19:00:00"
+    }
+  ]
+}

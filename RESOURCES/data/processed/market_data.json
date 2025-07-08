@@ -1,0 +1,112 @@
+{
+    "cryptocurrencies": [
+        {
+            "symbol": "BTC",
+            "name": "Bitcoin",
+            "price": 62575.88,
+            "market_cap": 1235000000000,
+            "volume_24h": 28500000000,
+            "change_24h": -1.33,
+            "change_7d": -0.85,
+            "last_updated": "2025-01-08T14:30:00Z"
+        },
+        {
+            "symbol": "ETH",
+            "name": "Ethereum",
+            "price": 3892.45,
+            "market_cap": 467800000000,
+            "volume_24h": 15200000000,
+            "change_24h": 2.15,
+            "change_7d": 3.42,
+            "last_updated": "2025-01-08T14:30:00Z"
+        },
+        {
+            "symbol": "SOL",
+            "name": "Solana",
+            "price": 198.73,
+            "market_cap": 94500000000,
+            "volume_24h": 3800000000,
+            "change_24h": 5.67,
+            "change_7d": 12.34,
+            "last_updated": "2025-01-08T14:30:00Z"
+        },
+        {
+            "symbol": "BNB",
+            "name": "BNB",
+            "price": 692.18,
+            "market_cap": 100200000000,
+            "volume_24h": 2100000000,
+            "change_24h": -0.89,
+            "change_7d": 4.56,
+            "last_updated": "2025-01-08T14:30:00Z"
+        },
+        {
+            "symbol": "XRP",
+            "name": "XRP",
+            "price": 2.31,
+            "market_cap": 131800000000,
+            "volume_24h": 4200000000,
+            "change_24h": 3.45,
+            "change_7d": -2.17,
+            "last_updated": "2025-01-08T14:30:00Z"
+        },
+        {
+            "symbol": "ADA",
+            "name": "Cardano",
+            "price": 1.07,
+            "market_cap": 37400000000,
+            "volume_24h": 1800000000,
+            "change_24h": 1.89,
+            "change_7d": 8.92,
+            "last_updated": "2025-01-08T14:30:00Z"
+        },
+        {
+            "symbol": "AVAX",
+            "name": "Avalanche",
+            "price": 41.25,
+            "market_cap": 16700000000,
+            "volume_24h": 890000000,
+            "change_24h": 4.23,
+            "change_7d": 15.67,
+            "last_updated": "2025-01-08T14:30:00Z"
+        },
+        {
+            "symbol": "DOT",
+            "name": "Polkadot",
+            "price": 8.94,
+            "market_cap": 13200000000,
+            "volume_24h": 420000000,
+            "change_24h": -1.45,
+            "change_7d": 6.78,
+            "last_updated": "2025-01-08T14:30:00Z"
+        },
+        {
+            "symbol": "LINK",
+            "name": "Chainlink",
+            "price": 23.67,
+            "market_cap": 14800000000,
+            "volume_24h": 650000000,
+            "change_24h": 2.34,
+            "change_7d": 9.12,
+            "last_updated": "2025-01-08T14:30:00Z"
+        },
+        {
+            "symbol": "MATIC",
+            "name": "Polygon",
+            "price": 0.89,
+            "market_cap": 8900000000,
+            "volume_24h": 340000000,
+            "change_24h": 0.67,
+            "change_7d": -3.45,
+            "last_updated": "2025-01-08T14:30:00Z"
+        }
+    ],
+    "market_summary": {
+        "total_market_cap": 2150000000000,
+        "total_volume_24h": 58000000000,
+        "btc_dominance": 57.4,
+        "eth_dominance": 21.8,
+        "active_cryptocurrencies": 10,
+        "last_updated": "2025-01-08T14:30:00Z"
+    }
+} 

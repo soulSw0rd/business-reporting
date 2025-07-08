@@ -1,0 +1,25 @@
+{
+  "training_date": "2025-07-08T13:46:25.319185",
+  "training_samples": 1000,
+  "feature_columns": [
+    "pnl_7d",
+    "pnl_30d",
+    "win_rate",
+    "long_percentage",
+    "btc_price",
+    "fear_greed",
+    "funding_rate",
+    "pnl_ratio",
+    "risk_score",
+    "btc_normalized",
+    "fear_greed_normalized",
+    "funding_normalized",
+    "trader_market_alignment",
+    "market_risk_factor"
+  ],
+  "accuracy_7d": 0.875,
+  "accuracy_30d": 0.915,
+  "test_size": 0.2,
+  "n_estimators": 100,
+  "random_state": 42
+}

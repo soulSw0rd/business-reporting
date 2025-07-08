@@ -1,12 +1,10 @@
-# Byte-compiled / optimized / DLL files
+# === CRYPTO-TRACKER GITIGNORE ===
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,165 +18,78 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# PEP 582
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
+# Environnements virtuels
 venv/
+venv2/
 ENV/
-env.bak/
-venv.bak/
-ds/ 
-ds.bak/
-DS/
-.ds/
-.ds
+env/
+.venv/
 
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# CryptoTracker specific
-*.db
-*.sqlite
-*.sqlite3
-.DS_Store
-Thumbs.db
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Logs
-logs/
-*.log
-
-# Docker
-.dockerignore
-
-# API Keys (never commit these!)
-.env.local
-.env.production
-src/shared/config/secrets.py
-api_keys.txt
-
-# Node modules (if any)
-node_modules/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# IDE specific files
-.vscode/settings.json
-.idea/workspace.xml
-*.sublime-project
-*.sublime-workspace
-
-# OS specific files
+# OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-desktop.ini
 
-# Build artifacts
-build/
-dist/
-*.egg-info/
+# Logs
+*.log
+logs/
+ADMIN/logs/*.log
 
-# Test artifacts
+# Données sensibles
+RESOURCES/data/raw/
+RESOURCES/data/exports/
+*.api_key
+*.secret
+.env
+
+# Modèles ML (trop volumineux)
+PRODUCTION/models/*.pkl
+PRODUCTION/models/*.joblib
+
+# Temporaires
+temp/
+tmp/
+*.tmp
+*.temp
+*_backup*
+*_old*
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Cache
+.cache/
+.pytest_cache/
+
+# Documentation générée
+docs/_build/
+
+# Backup
+*.bak
+*.backup
+
+# Tests
 .coverage
 htmlcov/
 .pytest_cache/
-.tox/ 
+
+# === FIN GITIGNORE === 
